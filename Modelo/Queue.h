@@ -10,4 +10,5 @@ public:
     Queue() = default;
 
     void personQueue();
+    void add(const Passager& passager);
 };
