@@ -15,5 +15,5 @@ public:
 
     // Interpreta un comando como "mover bus 10 arriba" y ejecuta la acción.
     // Devuelve false si no se entendió el comando.
-    bool processCommand(const std::string& command);
+    bool processCommand(const std::string& command);// interpretar comando 
 };

@@ -4,10 +4,10 @@
 
 class WaitingRoom {
 private:
-    std::vector<Passager> seats;
+    std::vector<Passager> seats;//el vector de la cantidad maxima de pasajeros a esperar por ser despachados
 
 public:
     WaitingRoom() = default;
 
-    void freePassager();
+    void freePassager();//despacha pasajeros a el bus del mismo color del pasajero
 };

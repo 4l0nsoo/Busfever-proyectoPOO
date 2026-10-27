@@ -9,5 +9,5 @@ private:
 public:
     Parking() = default;
 
-    void ride();
+    void ride();//despacha los buses llenos
 };

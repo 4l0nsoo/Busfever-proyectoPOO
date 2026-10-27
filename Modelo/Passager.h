@@ -3,7 +3,7 @@
 class Passager {
 private:
     int color;
-    int groupAmount;
+    int groupAmount;//cantidad de personas en un grupo
 
 public:
     Passager(int color, int groupAmount);
