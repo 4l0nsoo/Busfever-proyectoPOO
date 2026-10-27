@@ -1,0 +1,31 @@
+@startuml flujo
+
+start
+:Console imprime el tablero en ASCII;
+
+repeat
+    :Usuario escribe un comando;
+    :Controller interpreta el comando;
+
+    if (¿comando válido?) then (sí)
+        if (¿el bus existe?) then (sí)
+        else (no)
+            :Console muestra "bus no encontrado";
+        endif
+    else (no)
+        :Console muestra error de comprensión;
+    endif
+repeat while (¿entrada inválida?) is (sí) not (no)
+
+if (¿canExit?) then (sí)
+    :Traffic quita el bus del grid;
+    :Parking recibe el bus;
+    :WaitingRoom llena buses por color;
+else (no)
+    :Console muestra "bus bloqueado";
+endif
+
+:Console imprime el tablero actualizado;
+stop
+
+@enduml

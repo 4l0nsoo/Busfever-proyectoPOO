@@ -1,0 +1,42 @@
+@startuml secuencia
+
+actor Usuario
+participant Console
+participant Controller
+participant Traffic
+participant Parking
+participant WaitingRoom
+
+Console -> Usuario : imprime el tablero en ASCII
+
+loop hasta que el comando sea válido
+    Usuario -> Console : "mover bus 10 arriba"
+    Console -> Controller : texto del comando
+    Controller -> Controller : interpretar(comando)
+
+    alt comando no válido
+        Controller -> Console : error de comprensión
+        Console -> Usuario : muestra el error y pide otro comando
+    else bus no existe
+        Controller -> Traffic : getBus(id)
+        Traffic --> Controller : no encontrado
+        Controller -> Console : bus no encontrado
+        Console -> Usuario : muestra el error y pide otro comando
+    end
+end
+
+Controller -> Traffic : canExit(bus)
+
+alt camino libre
+    Traffic --> Controller : true
+    Controller -> Traffic : quitar bus del grid
+    Controller -> Parking : ride(bus)
+    Controller -> WaitingRoom : freePassager()
+else bloqueado
+    Traffic --> Controller : false
+    Controller -> Console : bus bloqueado
+end
+
+Console -> Usuario : imprime el tablero actualizado
+
+@enduml

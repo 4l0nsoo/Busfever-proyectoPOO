@@ -1,0 +1,58 @@
+@startuml arquitectura
+
+    class Bus{
+        - id:int
+        - capacity:int
+        - color:int 
+        - direction: string
+        - x:int
+        - y:int
+        + mover():void 
+        + getLength():int
+    }
+    
+    class Passager{
+        - color: int
+        - groupAmount: int
+        + split(): Passager
+    }
+
+    class Parking{
+        + places: <vector>
+        + ride(): void
+    }
+
+    class Traffic{
+        - grid: vector<vector<int>>
+        - buses: vector<Bus>
+        + canExit(bus: Bus): bool
+        // se trabaja con la logica de plano cartesiano
+        //y+1=arriba, x+1=derecha
+        //y-1=abajo, x-1=izquierda
+    }
+
+    class Queue{
+        - queue:<vector>
+        + personQueue():void
+    }
+
+    class WaitingRoom{
+        - seats:<vector>
+        + freePassager():void
+    }
+
+    class Console{
+        //many things
+    }
+
+    class Controller{
+        //manages user inputs
+    }
+    Traffic "1" o-- "*" Bus
+    Queue "1" *-- "*" Passager
+    Parking "1" o-- "*" Bus
+    WaitingRoom --> Parking : llena buses
+    WaitingRoom --> Queue : toma grupos de
+    Controller --> Traffic : el usuario maneja
+    WaitingRoom "1" o-- "*" Passager
+@enduml
