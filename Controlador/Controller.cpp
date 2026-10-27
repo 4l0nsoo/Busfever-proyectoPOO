@@ -21,8 +21,12 @@ bool Controller::processCommand(const std::string& command) {
     // Paso 3: ¿puede salir?
     if (traffic.canExit(*bus)) {
         // TODO: sacar el bus (traffic, parking...)
-        return true;
+        if(parking.isFull()){
+                return true;
+        }
     }
 
     return false;
 }
+
+
