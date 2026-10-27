@@ -6,7 +6,7 @@
 #define QUEUE_H
 class Queue {
 private:
-    std::vector<Passager> queue;
+    std::vector<Passager> queue;//vector estatico donde estan los pasajeros esperando entrar a WaitingRoom y despacha en forma FIFO
 
 public:
     void personQueue();//movimiento de los pasajeros

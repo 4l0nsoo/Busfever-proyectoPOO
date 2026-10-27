@@ -3,12 +3,12 @@
 
 class Bus {
 private:
-    int id;
-    int capacity;
+    int id;//identificador del bus
+    int capacity;//cantidad de personas
     int color;
-    std::string direction;
-    int x;
-    int y;
+    std::string direction;//direccion en la que avanza
+    int x;//posicion en x
+    int y;//posicion en y
 
 public:
     Bus(int id, int capacity, int color, const std::string& direction, int x, int y);
