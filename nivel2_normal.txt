@@ -1,0 +1,194 @@
+# Bus Fever Party - Nivel 2 (Normal, 12x12)
+# Colores: 1=rojo 2=azul 3=amarillo 4=verde 5=rosa
+# Direcciones: arriba, abajo, izquierda, derecha
+# Posicion (x,y) de un bus = su celda inferior izquierda. x crece hacia la derecha, y crece hacia arriba. Origen (0,0) abajo a la izquierda.
+# Largo: 1 casilla = carro (16 pasajeros), 2 = bus mediano (24), 3 = bus grande (40)
+# MATRIZ: id del bus que ocupa cada celda (0 = libre), se imprime como se ve en pantalla (fila de arriba primero)
+
+TABLERO 12 12
+
+MATRIZ
+ 1  2  2  2  3  4  4  4  5  6  6  7
+ 8  9 10 10  3 11 11 12  5 13 13 13
+ 8  9 14 15  3 16 17 12  5 18 19 20
+ 8 21 21 15 22 16 17 12 23 18 19 20
+24 25 26 15 27 28 29 30 23 18 31 20
+24 25 26 32 27 33 33 30 34 35 36 37
+38 25 39 32 27 40 40 41 34 42 42 43
+38 44 45 46 47 47 48 48 49 49 50 43
+51 51 51 46 52 53 53 53 54 54 55 55
+56 57 58 59 52 60 61 62 63 64 64 64
+56 57 65 59 52 60 66 62 67 67 67 68
+56 57 65 59 69 69 69 70 70 70 71 71
+
+# Fila estatica de pasajeros, en el orden exacto en que salen: color cantidad (total 1896)
+PASAJEROS 95
+5 8
+1 8
+2 24
+1 16
+4 16
+5 56
+3 8
+4 16
+3 24
+1 8
+5 24
+4 40
+3 24
+5 8
+2 24
+3 24
+2 32
+1 16
+4 16
+3 8
+5 16
+2 24
+4 24
+2 16
+3 40
+4 16
+2 8
+1 16
+2 32
+3 16
+5 16
+3 24
+2 16
+4 8
+5 24
+2 16
+5 8
+2 24
+3 16
+4 8
+2 16
+5 16
+3 32
+5 40
+3 24
+5 8
+1 48
+2 16
+1 24
+5 8
+1 16
+4 16
+3 32
+4 8
+1 24
+3 16
+2 16
+3 16
+5 16
+3 16
+4 48
+1 24
+4 8
+1 16
+3 24
+4 8
+2 16
+4 16
+5 16
+2 16
+4 8
+3 16
+1 64
+5 16
+1 16
+2 16
+1 16
+4 16
+1 16
+3 16
+4 8
+1 8
+4 16
+3 16
+4 16
+5 24
+2 48
+5 8
+1 24
+2 24
+3 64
+4 24
+3 8
+1 8
+5 32
+
+BUSES 71
+# id color x y direccion largo capacidad
+1 4 0 11 izquierda 1 16
+2 3 1 11 izquierda 3 40
+3 1 4 9 arriba 3 40
+4 4 5 11 derecha 3 40
+5 1 8 9 arriba 3 40
+6 2 9 11 derecha 2 24
+7 4 11 11 derecha 1 16
+8 5 0 8 arriba 3 40
+9 3 1 9 arriba 2 24
+10 2 2 10 izquierda 2 24
+11 2 5 10 derecha 2 24
+12 5 7 8 arriba 3 40
+13 3 9 10 derecha 3 40
+14 4 2 9 arriba 1 16
+15 5 3 7 arriba 3 40
+16 5 5 8 arriba 2 24
+17 3 6 8 arriba 2 24
+18 2 9 7 arriba 3 40
+19 4 10 8 arriba 2 24
+20 1 11 7 arriba 3 40
+21 3 1 8 izquierda 2 24
+22 3 4 8 arriba 1 16
+23 3 8 7 arriba 2 24
+24 3 0 6 arriba 2 24
+25 2 1 5 abajo 3 40
+26 1 2 6 abajo 2 24
+27 5 4 5 arriba 3 40
+28 1 5 7 arriba 1 16
+29 2 6 7 arriba 1 16
+30 1 7 6 arriba 2 24
+31 3 10 7 derecha 1 16
+32 2 3 5 abajo 2 24
+33 3 5 6 derecha 2 24
+34 4 8 5 arriba 2 24
+35 4 9 6 derecha 1 16
+36 1 10 6 derecha 1 16
+37 2 11 6 derecha 1 16
+38 1 0 4 abajo 2 24
+39 5 2 5 abajo 1 16
+40 4 5 5 derecha 2 24
+41 2 7 5 derecha 1 16
+42 1 9 5 derecha 2 24
+43 3 11 4 abajo 2 24
+44 3 1 4 izquierda 1 16
+45 4 2 4 abajo 1 16
+46 3 3 3 abajo 2 24
+47 1 4 4 derecha 2 24
+48 3 6 4 derecha 2 24
+49 2 8 4 derecha 2 24
+50 5 10 4 derecha 1 16
+51 5 0 3 izquierda 3 40
+52 2 4 1 abajo 3 40
+53 4 5 3 derecha 3 40
+54 1 8 3 derecha 2 24
+55 4 10 3 derecha 2 24
+56 3 0 0 abajo 3 40
+57 2 1 0 abajo 3 40
+58 4 2 2 abajo 1 16
+59 1 3 0 abajo 3 40
+60 5 5 1 abajo 2 24
+61 1 6 2 abajo 1 16
+62 4 7 1 abajo 2 24
+63 5 8 2 abajo 1 16
+64 2 9 2 derecha 3 40
+65 5 2 0 abajo 2 24
+66 2 6 1 abajo 1 16
+67 3 8 1 derecha 3 40
+68 1 11 1 derecha 1 16
+69 3 4 0 derecha 3 40
+70 4 7 0 derecha 3 40
+71 5 10 0 derecha 2 24
