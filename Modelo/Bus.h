@@ -14,7 +14,6 @@ private:
 public:
     Bus(int id, int capacity, int color, const std::string& direction, int x, int y);
 
-    void mover();
     int getLength() const;   // se calcula a partir de capacity (16 -> 1, 24 -> 2, 40 -> 3)
 
     // getters triviales (no van en el diagrama)

@@ -62,6 +62,9 @@ void Controller::loadLevel(const std::string& path) {
             continue;
         }
 
+        iss.clear();
+        iss.str(line);
+
         // Procesar los datos según la sección actual.
         switch (section) {
             case Section::MATRIX: {

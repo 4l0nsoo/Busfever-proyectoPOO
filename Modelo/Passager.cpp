@@ -4,6 +4,11 @@ Passager::Passager(int color, int groupAmount)
     : color(color), groupAmount(groupAmount) {}
 
 Passager Passager::split(int n) {
-    // TODO
-    return Passager(color, 0);
+    if (n> groupAmount){
+        groupAmount=n;
+    }
+    else{
+        groupAmount-=n;
+    }
+    return Passager(color, n);
 }
