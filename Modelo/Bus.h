@@ -54,10 +54,13 @@ public:
     void mover();
     int board(int n);
     bool isFull() const;
+    int getLength() const;   // se calcula a partir de capacity (16 -> 1, 24 -> 2, 40 -> 3)
 
     int getLength() const;   // se calcula a partir de capacity (16 -> 1, 24 -> 2, 40 -> 3)
     
     // getters triviales (no van en el diagrama)
+    int board(int n);
+    bool isFull() const;
     int getId() const; 
     int getCapacity() const;
     int getColor() const;
@@ -66,3 +69,7 @@ public:
     int getY() const;
     int getSeatsLeft() const; //Disponibilidad de asientos
 };
+
+/*board(n): resta n asientos. Aquí puedes protegerte, por ejemplo no restar más de los que quedan.
+isFull(): devuelve true si seatsLeft == 0.
+getSeatsLeft(): getter, para que la sala sepa cuánto cupo hay (implícito, no se dibuja).*/

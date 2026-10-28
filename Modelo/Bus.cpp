@@ -16,6 +16,11 @@ void Bus::mover() {
     }else if(direction=="abajo"){
         y-=1;
     }else if(direction=="derecha"){
+    if((direction=="arriba") || (direction=="v")){
+        y+=1;
+    }else if(direction=="abajo"){
+        y-=1;
+    }else if((direction=="derecha") || (direction=="H")){
         x+=1;
     }else if(direction=="izquierda"){
         x-=1;
