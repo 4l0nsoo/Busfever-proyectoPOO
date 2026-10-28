@@ -1,7 +1,7 @@
 # Bus Fever Party (versión en consola)
 
 Abstracción del juego **Bus Fever Party** en C++ con interfaz ASCII.
-El usuario ve el tablero impreso y escribe comandos como `mover bus 10 arriba`.
+El usuario ve el tablero impreso y escribe comandos de números enteros asociados al ID de un bus.
 
 ## Documentación
 
@@ -16,12 +16,8 @@ Para verlos: extensión **PlantUML** en VS Code (`Alt+D` para la vista previa).
 ## Código
 
 ```
-src/        clases (.h y .cpp) y main.cpp
-Makefile    compila con g++ -std=c++17
+src/        clases (.h y .cpp) y main.cpp\
 ```
-
-Compilar y ejecutar: `make && ./busfever` (en Windows: `mingw32-make`).
-Los métodos tienen el cuerpo vacío con `// TODO`: cada quien implementa su clase.
 
 ## Clases
 
