@@ -67,6 +67,9 @@ bool Traffic::canExit(const Bus& bus) const {
     return true; //si no verdadero
 }
 
+void Traffic::addBus(const Bus& bus) {
+    buses.push_back(bus);
+}
 
 Bus* Traffic::getBus(int id) {
     for (Bus& b : buses) {

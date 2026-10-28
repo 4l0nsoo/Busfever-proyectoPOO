@@ -7,8 +7,9 @@
         - direction: string
         - x:int
         - y:int
-        + mover():void 
         + getLength():int
+        + board():int
+        + isFull():bool
     }
     
     class Passager{
@@ -19,7 +20,9 @@
 
     class Parking{
         + places: <vector>
-        + ride(): void
+        + dispatch(): void
+        + findBus():Bus
+        + isFull():bool
     }
 
     class Traffic{
@@ -39,14 +42,20 @@
     class WaitingRoom{
         - seats:<vector>
         + freePassager():void
+        + fillBus(Bus):void
     }
 
     class Console{
-        //many things
+        + printBoard():void
+        + printMessage():void
+        + printError():void
+        + printWin():void
+        + printLoss():void
     }
 
     class Controller{
-        //manages user inputs
+        + processCommand():bool
+        + loadLevel(<string>):void 
     }
     Traffic "1" o-- "*" Bus
     Queue "1" *-- "*" Passager

@@ -11,6 +11,7 @@ private:
 public:
     void personQueue();//movimiento de los pasajeros
     Queue() = default;//constructor por defecto
+    void add(const Passager& passager);
     Passager removerFirstPassanger () const; // Permite sacar el primer pasajero 
     bool emptyFila()const; //dice si la fila tiene personas (retorna True) o si no tiene personas (retorna False)
 };

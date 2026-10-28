@@ -8,7 +8,7 @@ private:
 
 public:
     Parking() = default;
-
+    Bus* findBus(int color);
     void dispatch(int b);//despacha los buses llenos
     bool isFull();
 };

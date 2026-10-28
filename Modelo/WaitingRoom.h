@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include "Passager.h"
+#include "Parking.h"
+
 
 class WaitingRoom {
 private:
@@ -9,5 +11,6 @@ private:
 public:
     WaitingRoom() = default;
 
-    void freePassager();//despacha pasajeros a el bus del mismo color del pasajero
+    void freePassager(Parking& slots);//despacha pasajeros a el bus del mismo color del pasajero
+    void fillBus(Bus& bus);
 };

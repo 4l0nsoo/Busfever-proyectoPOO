@@ -75,6 +75,14 @@ public:
     bool removeBus(int id);
  
     //revisa si el camino está libre,
+
+    void addBus(const Bus& bus);
+
+    /**
+     *  Revisa si un bus tiene el camino libre hasta el borde del tablero.
+     *  Bus que se quiere sacar.
+     *  true si todas las celdas del camino valen 0, false si encuentra otro bus.
+     */
     bool canExit(const Bus& bus) const;
  
     //busca el bus por su identificación (id)
