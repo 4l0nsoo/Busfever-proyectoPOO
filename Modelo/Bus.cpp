@@ -11,11 +11,11 @@ int Bus::getLength() const{
 }
 
 void Bus::mover() {
-    if((direction=="arriba") || (direction=="v")){
+    if(direction=="arriba"){
         y+=1;
     }else if(direction=="abajo"){
         y-=1;
-    }else if((direction=="derecha") || (direction=="H")){
+    }else if(direction=="derecha"){
         x+=1;
     }else if(direction=="izquierda"){
         x-=1;
