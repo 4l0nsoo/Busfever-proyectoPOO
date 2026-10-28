@@ -24,6 +24,8 @@ private:
 public:
     Traffic() = default;
 
+    void addBus(const Bus& bus);
+
     /**
      *  Revisa si un bus tiene el camino libre hasta el borde del tablero.
      *  Bus que se quiere sacar.
