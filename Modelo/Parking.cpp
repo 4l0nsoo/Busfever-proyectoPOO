@@ -17,3 +17,6 @@ bool Parking::isFull(){
         return true;
     };
 }
+void Parking::receiveBus(Bus &bus){
+    places.push_back(bus);
+}
