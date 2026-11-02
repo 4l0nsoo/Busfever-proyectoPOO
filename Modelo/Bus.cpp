@@ -1,7 +1,7 @@
 #include "Bus.h"
 
-Bus::Bus(int id, int capacity, int color, const std::string& direction, int x, int y)
-:id(id), capacity(capacity), color(color), direction(direction), x(x), y(y), seatsLeft(capacity) {}
+Bus::Bus(int id, int Length, int capacity, int color, const std::string& direction, int x, int y)
+:id(id), Length(Length), capacity(capacity), color(color), direction(direction), x(x), y(y), seatsLeft(capacity) {}
 
 int Bus::getLength() const{
     if(capacity==16){return 1;}
@@ -13,7 +13,7 @@ int Bus::getLength() const{
 int Bus::getId() const { return id; }
 int Bus::getCapacity() const { return capacity; }
 int Bus::getColor() const { return color; }
-std::string Bus::getDirection() const { return direction; }
+const std::string& Bus::getDirection() const { return direction; }
 int Bus::getX() const { return x; }
 int Bus::getY() const { return y; }
 int Bus::getSeatsLeft() const {return seatsLeft;}
