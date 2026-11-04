@@ -12,10 +12,8 @@ Bus* Parking::findBus(int color) {
     return nullptr;
 }
 
-bool Parking::isFull(){
-    if(places.size() >= 4){
-        return true;
-    };
+bool Parking::isFull() {
+    return places.size() >= 4;
 }
 void Parking::receiveBus(Bus &bus){
     places.push_back(bus);

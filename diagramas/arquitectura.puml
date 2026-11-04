@@ -1,67 +1,106 @@
 @startuml arquitectura
 
-    class Bus{
-        - id:int
-        - capacity:int
-        - color:int 
-        - direction: string
-        - x:int
-        - y:int
-        + getLength():int
-        + board():int
-        + isFull():bool
-    }
-    
-    class Passager{
-        - color: int
-        - groupAmount: int
-        + split(): Passager
-    }
+class Bus {
+    - id: int
+    - capacity: int
+    - color: int
+    - direction: string
+    - x: int
+    - y: int
+    - seatsLeft: int
+    + Bus(id, capacity, color, direction, x, y)
+    + mover(): void
+    + board(n): int
+    + isFull(): bool
+    + getLength(): int
+    + getId(): int
+    + getColor(): int
+    + getDirection(): string
+    + getX(): int
+    + getY(): int
+}
 
-    class Parking{
-        + places: <vector>
-        + dispatch(): void
-        + findBus():Bus
-        + isFull():bool
-    }
+class Passager {
+    - color: int
+    - groupAmount: int
+    + Passager(color, groupAmount)
+    + split(n): Passager
+    + getColor(): int
+    + getGroupAmount(): int
+}
 
-    class Traffic{
-        - grid: vector<vector<int>>
-        - buses: vector<Bus>
-        + canExit(bus: Bus): bool
-        // se trabaja con la logica de plano cartesiano
-        //y+1=arriba, x+1=derecha
-        //y-1=abajo, x-1=izquierda
-    }
+class Parking {
+    - places: vector<Bus>
+    + receiveBus(bus): void
+    + findBus(color): Bus*
+    + dispatch(index): void
+    + isFull(): bool
+}
 
-    class Queue{
-        - queue:<vector>
-        + personQueue():void
-    }
+class Traffic {
+    - grid: vector<vector<int>>
+    - buses: vector<Bus>
+    + Traffic(width, height)
+    + initializeBoard(width, height): void
+    + addBus(bus): bool
+    + removeBus(id): bool
+    + canExit(bus): bool
+    + getBus(id): Bus*
+    + getBuses(): const vector<Bus>&
+    + getGrid(): const vector<vector<int>>&
+    + getBusCount(): int
+}
 
-    class WaitingRoom{
-        - seats:<vector>
-        + freePassager():void
-        + fillBus(Bus):void
-    }
+class Queue {
+    - queue: vector<Passager>
+    + add(passager): void
+    + clear(): void
+    + personQueue(): void
+    + removerFirstPassanger(): Passager
+    + emptyFila(): bool
+}
 
-    class Console{
-        + printBoard():void
-        + printMessage():void
-        + printError():void
-        + printWin():void
-        + printLoss():void
-    }
+class WaitingRoom {
+    - seats: vector<Passager>
+    - parking: Parking&
+    - queue: Queue&
+    + freePassager(slots): void
+    + fillBus(bus): void
+}
 
-    class Controller{
-        + processCommand():bool
-        + loadLevel(<string>):void 
-    }
-    Traffic "1" o-- "*" Bus
-    Queue "1" *-- "*" Passager
-    Parking "1" o-- "*" Bus
-    WaitingRoom --> Parking : llena buses
-    WaitingRoom --> Queue : toma grupos de
-    Controller --> Traffic : el usuario maneja
-    WaitingRoom "1" o-- "*" Passager
+class Console {
+    + printBoard(traffic): void
+    + readCommand(): string
+    + printMessage(message): void
+    + printError(error): void
+    + printWin(): void
+    + printLoss(): void
+}
+
+class Controller {
+    - traffic: Traffic&
+    - parking: Parking&
+    - waitingRoom: WaitingRoom&
+    - queue: Queue&
+    + loadLevel(path): void
+    + processCommand(command): bool
+}
+
+Traffic "1" *-- "0..*" Bus : buses
+Parking "1" o-- "0..*" Bus : places
+Queue "1" *-- "0..*" Passager : queue
+WaitingRoom "1" *-- "0..*" Passager : seats
+WaitingRoom --> Parking : busca buses por color
+WaitingRoom --> Queue : consume grupos
+Controller --> Traffic : inicializa y opera
+Controller --> Parking : verifica cupo y recibe buses
+Controller --> Queue : carga pasajeros del nivel
+Controller --> WaitingRoom : conserva referencia
+Console --> Traffic : consulta grid y direcciones
+
+note bottom of Traffic
+    grid[y][x]: 0 significa celda libre;
+    los buses se reconstruyen desde la seccion BUSES.
+end note
+
 @enduml

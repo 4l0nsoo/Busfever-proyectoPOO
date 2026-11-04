@@ -55,12 +55,8 @@ public:
     int board(int n);
     bool isFull() const;
     int getLength() const;   // se calcula a partir de capacity (16 -> 1, 24 -> 2, 40 -> 3)
-
-    int getLength() const;   // se calcula a partir de capacity (16 -> 1, 24 -> 2, 40 -> 3)
     
     // getters triviales (no van en el diagrama)
-    int board(int n);
-    bool isFull() const;
     int getId() const; 
     int getCapacity() const;
     int getColor() const;

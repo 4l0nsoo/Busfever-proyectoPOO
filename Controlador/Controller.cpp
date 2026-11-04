@@ -1,19 +1,17 @@
 #include "Controller.h"
 #include "../Vista/Console.h"
-#include <string>
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <vector>
 #include <stdexcept>
 
 void Controller::loadLevel(const std::string& path) {
-    Queue cola;
     std::ifstream file(path);
 
     if (!file.is_open()) {
         throw std::runtime_error("No se pudo abrir el archivo del nivel");
     }
+    queue.clear();
 
     enum class Section {
         NONE,
@@ -24,10 +22,15 @@ void Controller::loadLevel(const std::string& path) {
 
     Section section = Section::NONE;
     std::string line;
+    int expectedPassengers = -1;
+    int loadedPassengers = 0;
+    int expectedBuses = -1;
+    int loadedBuses = 0;
 
     while (std::getline(file, line)) {
         // Ignorar comentarios y líneas vacías.
-        if (line.empty() || line[0] == '#') {
+        const std::size_t firstCharacter = line.find_first_not_of(" \t\r");
+        if (firstCharacter == std::string::npos || line[firstCharacter] == '#') {
             continue;
         }
 
@@ -43,22 +46,28 @@ void Controller::loadLevel(const std::string& path) {
         }
 
         if (first == "PASAJEROS") {
+            if (!(iss >> expectedPassengers) || expectedPassengers < 0) {
+                throw std::runtime_error("Cantidad de pasajeros invalida");
+            }
             section = Section::PASSENGERS;
             continue;
         }
 
         if (first == "BUSES") {
+            if (!(iss >> expectedBuses) || expectedBuses < 0) {
+                throw std::runtime_error("Cantidad de buses invalida");
+            }
             section = Section::BUSES;
             continue;
         }
 
         // El tamaño del tablero.
         if (first == "TABLERO") {
-            int rows, cols;
-            iss >> rows >> cols;
-
-            // Si Traffic necesita conocer las dimensiones,
-            // configúralas aquí mediante su interfaz pública.
+            int width, height;
+            if (!(iss >> width >> height)) {
+                throw std::runtime_error("Dimensiones del tablero invalidas");
+            }
+            traffic.initializeBoard(width, height);
             continue;
         }
 
@@ -82,11 +91,12 @@ void Controller::loadLevel(const std::string& path) {
             case Section::PASSENGERS: {
                 int color, quantity;
 
-                if (iss >> color >> quantity) {
-                    Passager passenger(color, quantity);
-                    cola.add(passenger);
+                if (!(iss >> color >> quantity) || color <= 0 || quantity <= 0) {
+                    throw std::runtime_error("Datos de pasajeros invalidos");
                 }
 
+                queue.add(Passager(color, quantity));
+                ++loadedPassengers;
                 break;
             }
 
@@ -94,15 +104,18 @@ void Controller::loadLevel(const std::string& path) {
                 int id, color, x, y, length, capacity;
                 std::string direction;
 
-                if (iss >> id >> color >> x >> y
-                        >> direction >> length >> capacity) {
-
-                    // length se lee para respetar el formato,
-                    // pero Bus calcula su longitud desde capacity.
-                    Bus bus(id, capacity, color, direction, x, y);
-                    traffic.addBus(bus);
+                if (!(iss >> id >> color >> x >> y
+                        >> direction >> length >> capacity)) {
+                    throw std::runtime_error("Datos de bus invalidos");
                 }
 
+                // length se lee para respetar el formato; Bus calcula su longitud desde capacity.
+                Bus bus(id, capacity, color, direction, x, y);
+                if (!traffic.addBus(bus)) {
+                    throw std::runtime_error("No se pudo agregar el bus " + std::to_string(id));
+                }
+
+                ++loadedBuses;
                 break;
             }
 
@@ -110,33 +123,47 @@ void Controller::loadLevel(const std::string& path) {
                 break;
         }
     }
+
+    if (expectedPassengers < 0 || loadedPassengers != expectedPassengers) {
+        throw std::runtime_error("La cantidad de pasajeros no coincide con el nivel");
+    }
+    if (expectedBuses < 0 || loadedBuses != expectedBuses) {
+        throw std::runtime_error("La cantidad de buses no coincide con el nivel");
+    }
 }
 
 bool Controller::processCommand(const std::string& command) {
     int id;
+    std::size_t parsedCharacters = 0;
 
-    // Paso 1: convertir el texto a número
+    // Convierte el comando a un ID y rechaza texto adicional.
     try {
-        id = std::stoi(command);
-    } catch (...) {
-        return false;   // no era un número ("abc", vacío...)
+        id = std::stoi(command, &parsedCharacters);
+    } catch (const std::invalid_argument&) {
+        return false;
+    } catch (const std::out_of_range&) {
+        return false;
     }
 
-    // Paso 2: buscar el bus
+    if (parsedCharacters != command.size()) {
+        return false;
+    }
+
+    // Busca el bus en el tráfico.
     Bus* bus = traffic.getBus(id);
     if (bus == nullptr) {
         return false;
     }
 
-    // Paso 3: ¿puede salir?
-    if (traffic.canExit(*bus)) {
-        // TODO: sacar el bus (traffic, parking...)
-        if(parking.isFull()){
-                return true;
-        }
+    if (parking.isFull() || !traffic.canExit(*bus)) {
+        return false;
     }
 
-    return false;
+    // Conserva una copia antes de quitar el bus del tráfico.
+    Bus busLeaving = *bus;
+    if (!traffic.removeBus(id)) {
+        return false;
+    }
+    parking.receiveBus(busLeaving);
+    return true;
 }
-
-

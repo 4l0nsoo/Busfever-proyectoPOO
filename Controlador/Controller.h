@@ -10,9 +10,11 @@ private:
     Traffic& traffic;
     Parking& parking;
     WaitingRoom& waitingRoom;
+    Queue& queue;
 
 public:
-    Controller(Traffic &t, Parking &p, WaitingRoom &w): traffic(t), parking(p), waitingRoom(w){}; 
+    Controller(Traffic& t, Parking& p, WaitingRoom& w, Queue& q)
+        : traffic(t), parking(p), waitingRoom(w), queue(q) {}
     // Interpreta un comando como "mover bus 10 arriba" y ejecuta la acción.
     // Devuelve false si no se entendió el comando.
     bool processCommand(const std::string& command);// interpretar comando 

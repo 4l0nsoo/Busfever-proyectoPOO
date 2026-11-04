@@ -5,51 +5,43 @@
 #include "./Controlador/Controller.h"
 #include "./Vista/Console.h"
 
+#include <exception>
+#include <string>
+
 int main() {
     Traffic traffic;
     Parking parking;
     Queue queue;
     WaitingRoom waitingRoom(parking, queue);
-    Controller controller(traffic, parking, waitingRoom);
+    Controller controller(traffic, parking, waitingRoom, queue);
     Console console;
 
-    // TODO: cargar el nivel y armar el ciclo del juego
-        bool running = true;
+    try {
+        controller.loadLevel("nivel1_facil.txt");
+    } catch (const std::exception& error) {
+        console.printMessage(error.what());
+        return 1;
+    }
 
-    // while (running) {
-    //     // a. Imprimir el estado actual del tablero
-    //     console.printBoard(traffic);
+    while (traffic.getBusCount() > 0) {
+        console.printBoard(traffic);
+        console.printMessage("Ingrese el ID de un bus o 'salir':");
+        const std::string command = console.readCommand();
 
-    //     std::string comando = console.pedirComando();
+        if (command == "salir" || command.empty()) {
+            break;
+        }
 
-    //     if (comando == "exit") {
-    //         running = false;
-    //         continue;
-    //     }
+        if (controller.processCommand(command)) {
+            console.printMessage("Bus enviado al estacionamiento.");
+        } else {
+            console.printError("ID invalido, bus bloqueado o estacionamiento lleno. Intente de nuevo.");
+        }
+    }
 
-    //     if (!controller.esComandoValido(comando)) {
-    //         console.mostrarError("Comando no reconocido.");
-    //         continue;
-    //     }
-
-    //     if (!controller.existeBus(traffic, comando)) {
-    //         console.mostrarError("Bus no encontrado.");
-    //         continue;
-    //     }
-
-    //     if (traffic.canExit(comando)) {[cite: 1, 2]
-    //         // Extraemos el bus del grid (se quita de Traffic)
-    //         Bus busLiberado = traffic.quitarBus(comando);[cite: 1]
-
-    //         // Lo transferimos al vector del parqueadero
-    //         parking.recibirBus(busLiberado);[cite: 1, 2]
-
-    //         // WaitingRoom llena los buses usando la cola de pasajeros
-    //         waitingRoom.freePassager();[cite: 2]
-    //     } else {
-    //         console.mostrarError("Bus bloqueado.");
-    //     }
-    //}
+    if (traffic.getBusCount() == 0) {
+        console.printWin();
+    }
 
     return 0;
 }

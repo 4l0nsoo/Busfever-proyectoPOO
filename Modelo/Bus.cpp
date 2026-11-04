@@ -27,6 +27,7 @@ void Bus::mover() {
     }
     // TODO
 }
+}
 
 int Bus::getId() const { return id; }
 int Bus::getCapacity() const { return capacity; }
