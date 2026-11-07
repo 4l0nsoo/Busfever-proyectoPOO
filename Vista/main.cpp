@@ -4,6 +4,9 @@
 #include "./Modelo/WaitingRoom.h"
 #include "./Controlador/Controller.h"
 #include "./Vista/Console.h"
+// Trae la clase que abre la ventana de Allegro con el escenario.
+// Ej: SceneryWindow sceneryWindow; sceneryWindow.run();
+#include "./Vista/SceneryWindow.h"
 
 #include <exception>
 #include <string>
@@ -15,6 +18,16 @@ int main() {
     WaitingRoom waitingRoom(parking, queue);
     Controller controller(traffic, parking, waitingRoom, queue);
     Console console;
+
+    // Crea el objeto que maneja la ventana de Allegro con el escenario.
+    // Ej: usa el título y la imagen assets/escenario.png que trae por defecto.
+    SceneryWindow sceneryWindow;
+
+    // Abre la ventana y espera a que el usuario la cierre (con la X o ESC).
+    // Ej: si no encuentra la imagen de fondo, avisa en la consola y el juego sigue.
+    if (!sceneryWindow.run()) {
+        console.printError("No se pudo abrir la ventana del escenario.");
+    }
 
     try {
         controller.loadLevel("nivel1_facil.txt");

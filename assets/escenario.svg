@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="576" height="1024" viewBox="0 0 576 1024">
+  <!--
+    Escenario de fondo de Bus Fever Party (FPOO-C++ Edition).
+    Tamaño lógico: 576 x 1024 píxeles. Las mismas medidas están en Vista/SceneLayout.h.
+    Zonas:
+      - Pasto, camino de la fila y glorieta (fila rotatoria): y = 0 .. 340
+      - Franja de parqueo con 4 puestos:                      y = 340 .. 478
+      - Zona del tablero (tráfico):                            y = 478 .. 1024
+    Para regenerar escenario.png se abre este archivo en un navegador y se toma una captura de 576 x 1024.
+  -->
+  <defs>
+    <linearGradient id="pasto" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9ED682"/>
+      <stop offset="1" stop-color="#7EC266"/>
+    </linearGradient>
+    <linearGradient id="zonaTablero" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E4E7F6"/>
+      <stop offset="1" stop-color="#D6DAEE"/>
+    </linearGradient>
+    <linearGradient id="panelTablero" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F2F3FC"/>
+      <stop offset="1" stop-color="#E9EBF8"/>
+    </linearGradient>
+    <filter id="sombra" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#2B3040" flood-opacity="0.28"/>
+    </filter>
+    <filter id="sombraSuave" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#5A6290" flood-opacity="0.22"/>
+    </filter>
+    <g id="arbusto">
+      <circle cx="0" cy="6" r="22" fill="#3F8A3A"/>
+      <circle cx="-16" cy="2" r="16" fill="#4E9E45"/>
+      <circle cx="16" cy="0" r="17" fill="#4E9E45"/>
+      <circle cx="0" cy="-10" r="18" fill="#5DB052"/>
+      <circle cx="-6" cy="-16" r="7" fill="#7CC86C" opacity="0.8"/>
+    </g>
+    <g id="flor">
+      <circle cx="-3" cy="0" r="3" fill="#F7A8C4"/>
+      <circle cx="3" cy="0" r="3" fill="#F7A8C4"/>
+      <circle cx="0" cy="-3" r="3" fill="#F7A8C4"/>
+      <circle cx="0" cy="3" r="3" fill="#F7A8C4"/>
+      <circle cx="0" cy="0" r="2" fill="#FFE07A"/>
+    </g>
+    <g id="florBlanca">
+      <circle cx="-3" cy="0" r="3" fill="#FFFFFF"/>
+      <circle cx="3" cy="0" r="3" fill="#FFFFFF"/>
+      <circle cx="0" cy="-3" r="3" fill="#FFFFFF"/>
+      <circle cx="0" cy="3" r="3" fill="#FFFFFF"/>
+      <circle cx="0" cy="0" r="2" fill="#FFC94D"/>
+    </g>
+    <path id="hierba" d="M0 0 l3 -7 l3 7 M5 0 l3 -6 l3 6" stroke="#6AAE55" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </defs>
+
+  <!-- ===== Pasto ===== -->
+  <rect x="0" y="0" width="576" height="340" fill="url(#pasto)"/>
+  <ellipse cx="170" cy="70" rx="90" ry="40" fill="#B6E19C" opacity="0.35"/>
+  <ellipse cx="470" cy="150" rx="110" ry="50" fill="#B6E19C" opacity="0.30"/>
+  <ellipse cx="420" cy="40" rx="70" ry="28" fill="#6EB45A" opacity="0.20"/>
+  <ellipse cx="60" cy="300" rx="80" ry="30" fill="#6EB45A" opacity="0.20"/>
+  <use href="#hierba" x="200" y="40"/>
+  <use href="#hierba" x="330" y="30"/>
+  <use href="#hierba" x="420" y="110"/>
+  <use href="#hierba" x="555" y="250"/>
+  <use href="#hierba" x="160" y="110"/>
+  <use href="#hierba" x="250" y="90"/>
+  <use href="#hierba" x="390" y="95"/>
+  <use href="#hierba" x="30" y="250"/>
+  <use href="#hierba" x="500" y="300"/>
+  <use href="#hierba" x="140" y="320"/>
+  <use href="#hierba" x="420" y="325"/>
+  <use href="#hierba" x="550" y="120"/>
+
+  <!-- ===== Bordillos (se dibujan primero para que el asfalto quede encima) ===== -->
+  <path d="M78 -40 L78 120 C78 185 105 212 160 216" stroke="#EEF1F4" stroke-width="72" fill="none"/>
+  <path d="M498 -40 L498 120 C498 185 471 212 416 216" stroke="#EEF1F4" stroke-width="72" fill="none"/>
+  <ellipse cx="288" cy="210" rx="174" ry="106" fill="#EEF1F4" filter="url(#sombra)"/>
+  <rect x="244" y="270" width="88" height="80" fill="#EEF1F4"/>
+
+  <!-- ===== Asfalto: caminos de la fila (izquierdo y derecho), glorieta y salida al parqueo ===== -->
+  <path d="M78 -40 L78 120 C78 185 105 212 160 216" stroke="#585D69" stroke-width="58" fill="none"/>
+  <path d="M498 -40 L498 120 C498 185 471 212 416 216" stroke="#585D69" stroke-width="58" fill="none"/>
+  <ellipse cx="288" cy="210" rx="165" ry="97" fill="#585D69"/>
+  <rect x="253" y="270" width="70" height="80" fill="#585D69"/>
+  <!-- Líneas punteadas de los dos caminos de la fila estática -->
+  <path d="M78 -40 L78 120 C78 185 105 212 160 216" stroke="#7A808D" stroke-width="3" stroke-dasharray="14 12" fill="none"/>
+  <path d="M498 -40 L498 120 C498 185 471 212 416 216" stroke="#7A808D" stroke-width="3" stroke-dasharray="14 12" fill="none"/>
+  <!-- Línea punteada que marca el carril circular de la fila rotatoria -->
+  <ellipse cx="288" cy="210" rx="122" ry="65" fill="none" stroke="#7A808D" stroke-width="3" stroke-dasharray="14 12"/>
+
+  <!-- ===== Isla central de la glorieta ===== -->
+  <ellipse cx="288" cy="210" rx="80" ry="34" fill="#EEF1F4"/>
+  <ellipse cx="288" cy="210" rx="72" ry="27" fill="#8CCB70"/>
+  <use href="#flor" x="262" y="204"/>
+  <use href="#florBlanca" x="288" y="214"/>
+  <use href="#flor" x="314" y="206"/>
+  <use href="#hierba" x="246" y="220"/>
+  <use href="#hierba" x="320" y="222"/>
+
+  <!-- ===== Paso peatonal: posición de embarque ===== -->
+  <rect x="261" y="312" width="8" height="24" rx="2" fill="#F6F7FA"/>
+  <rect x="274" y="312" width="8" height="24" rx="2" fill="#F6F7FA"/>
+  <rect x="287" y="312" width="8" height="24" rx="2" fill="#F6F7FA"/>
+  <rect x="300" y="312" width="8" height="24" rx="2" fill="#F6F7FA"/>
+  <rect x="313" y="312" width="8" height="24" rx="2" fill="#F6F7FA"/>
+
+  <!-- ===== Arbustos, árboles y flores ===== -->
+  <use href="#arbusto" x="376" y="20"/>
+  <use href="#arbusto" x="505" y="275"/>
+  <use href="#arbusto" x="548" y="305"/>
+  <use href="#arbusto" x="30" y="190"/>
+  <use href="#arbusto" x="546" y="200"/>
+  <use href="#arbusto" x="200" y="20"/>
+  <use href="#flor" x="470" y="300"/>
+  <use href="#florBlanca" x="482" y="310"/>
+  <use href="#flor" x="494" y="302"/>
+  <use href="#florBlanca" x="520" y="312"/>
+  <use href="#flor" x="40" y="300"/>
+  <use href="#florBlanca" x="54" y="310"/>
+  <use href="#flor" x="68" y="300"/>
+  <use href="#florBlanca" x="150" y="40"/>
+  <use href="#flor" x="400" y="70"/>
+  <use href="#florBlanca" x="415" y="78"/>
+  <use href="#flor" x="430" y="300"/>
+
+  <!-- ===== Franja de parqueo ===== -->
+  <rect x="0" y="340" width="576" height="138" fill="#4E535F"/>
+  <rect x="0" y="340" width="576" height="6" fill="#D8DCE2"/>
+  <!-- La salida de la glorieta atraviesa el bordillo superior -->
+  <rect x="253" y="336" width="70" height="12" fill="#4E535F"/>
+  <rect x="0" y="470" width="576" height="8" fill="#F5F6FA"/>
+
+  <!-- 4 puestos de parqueo (80 x 100), separados 30 px -->
+  <rect x="83" y="360" width="80" height="100" rx="12" fill="#5C6270" stroke="#E6E9EE" stroke-width="4" stroke-dasharray="16 9"/>
+  <rect x="193" y="360" width="80" height="100" rx="12" fill="#5C6270" stroke="#E6E9EE" stroke-width="4" stroke-dasharray="16 9"/>
+  <rect x="303" y="360" width="80" height="100" rx="12" fill="#5C6270" stroke="#E6E9EE" stroke-width="4" stroke-dasharray="16 9"/>
+  <rect x="413" y="360" width="80" height="100" rx="12" fill="#5C6270" stroke="#E6E9EE" stroke-width="4" stroke-dasharray="16 9"/>
+  <g font-family="Arial, sans-serif" font-weight="bold" font-size="26" fill="#FFFFFF" fill-opacity="0.22" text-anchor="middle">
+    <text x="123" y="420">1</text>
+    <text x="233" y="420">2</text>
+    <text x="343" y="420">3</text>
+    <text x="453" y="420">4</text>
+  </g>
+
+  <!-- ===== Zona del tablero ===== -->
+  <rect x="0" y="478" width="576" height="546" fill="url(#zonaTablero)"/>
+  <rect x="20" y="496" width="536" height="508" rx="26" fill="url(#panelTablero)" stroke="#C6CBE4" stroke-width="3" filter="url(#sombraSuave)"/>
+</svg>
