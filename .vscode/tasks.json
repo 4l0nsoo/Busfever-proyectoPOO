@@ -1,0 +1,65 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "C/C++: g++.exe build active file",
+            "type": "cppbuild",
+            "command": "C:\\mingw64\\bin\\g++.exe",
+            "args": [
+                "-std=c++17",
+                "-g",
+                "Vista/main.cpp",
+                "Vista/Console.cpp",
+                "Vista/AllegroWindow.cpp",
+                "Vista/Scenery.cpp",
+                "Vista/SceneryWindow.cpp",
+                "Vista/SpriteBank.cpp",
+                "Vista/Animation.cpp",
+                "Vista/PassengerRenderer.cpp",
+                "Vista/BoardRenderer.cpp",
+                "Vista/MainMenu.cpp",
+                "Vista/MenuPanel.cpp",
+                "Vista/PauseMenu.cpp",
+                "Vista/PauseButton.cpp",
+                "Controlador/Controller.cpp",
+                "Controlador/TextLevelLoader.cpp",
+                "Controlador/LevelCatalog.cpp",
+                "Modelo/Bus.cpp",
+                "Modelo/Parking.cpp",
+                "Modelo/Passager.cpp",
+                "Modelo/Queue.cpp",
+                "Modelo/Traffic.cpp",
+                "Modelo/WaitingRoom.cpp",
+                "-I${workspaceFolder}",
+                "-IC:\\allegro5\\include",
+                "-LC:\\allegro5\\lib",
+                "-lallegro",
+                "-lallegro_image",
+                "-lallegro_primitives",
+                "-lallegro_font",
+                "-lallegro_ttf",
+                "-o",
+                "${workspaceFolder}\\Vista\\main.exe"
+            ],
+            "options": { "cwd": "${workspaceFolder}" },
+            "group": { "kind": "build", "isDefault": true },
+            "problemMatcher": ["$gcc"],
+            "detail": "Compila todo el proyecto Bus Fever con g++ (MinGW)"
+        },
+        {
+            "label": "Preparar Bus Fever (consola externa)",
+            "dependsOn": "C/C++: g++.exe build active file",
+            "problemMatcher": []
+        },
+        {
+            "label": "Compilar y ejecutar Bus Fever",
+            "type": "shell",
+            "command": ".\\Vista\\main.exe",
+            "options": { "cwd": "${workspaceFolder}" },
+            "dependsOn": "C/C++: g++.exe build active file",
+            "group": "build",
+            "presentation": { "reveal": "always", "focus": true, "panel": "dedicated" },
+            "problemMatcher": []
+        }
+    ]
+}

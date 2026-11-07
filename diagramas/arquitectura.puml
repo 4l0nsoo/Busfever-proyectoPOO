@@ -58,14 +58,21 @@ class Queue {
     + personQueue(): void
     + removerFirstPassanger(): Passager
     + emptyFila(): bool
+    + takeFront(maxAmount): Passager
+    + getPassengers(): const vector<Passager>&
 }
 
 class WaitingRoom {
+    + {static} CAPACITY: int = 120
     - seats: vector<Passager>
     - parking: Parking&
     - queue: Queue&
     + freePassager(slots): void
     + fillBus(bus): void
+    + clear(): void
+    + fillFromQueue(): void
+    + getPeopleCount(): int
+    + getSeats(): const vector<Passager>&
 }
 
 class Console {
@@ -82,9 +89,181 @@ class Controller {
     - parking: Parking&
     - waitingRoom: WaitingRoom&
     - queue: Queue&
+    - defaultLoader: TextLevelLoader
+    - levelLoader: const ILevelLoader&
+    - currentDifficulty: Difficulty
     + loadLevel(path): void
+    + loadLevel(difficulty): void
+    + getCurrentDifficulty(): Difficulty
     + processCommand(command): bool
 }
+
+enum Difficulty {
+    Easy = 1
+    Normal = 2
+    Hard = 3
+}
+
+class LevelCatalog {
+    + {static} getFilePath(difficulty): string
+    + {static} getName(difficulty): string
+    + {static} getNumber(difficulty): int
+    + {static} fromNumber(number, difficulty&): bool
+}
+
+interface ILevelLoader {
+    + {abstract} load(path, traffic, queue): void
+}
+
+class TextLevelLoader {
+    + load(path, traffic, queue): void
+}
+
+package Vista {
+    interface IRenderable {
+        + {abstract} update(seconds): void
+        + {abstract} draw(): void
+    }
+
+    class AllegroWindow {
+        - display: ALLEGRO_DISPLAY*
+        - eventQueue: ALLEGRO_EVENT_QUEUE*
+        - timer: ALLEGRO_TIMER*
+        - scale: float
+        + initialize(title): bool
+        + startTimer(): void
+        + waitForEvent(event): void
+        + present(): void
+        + setTitle(title): void
+        + getFrameSeconds(): double
+    }
+
+    class SceneryWindow {
+        - controller: Controller&
+        - traffic: const Traffic&
+        - queue: const Queue&
+        - waitingRoom: const WaitingRoom&
+        + run(): bool
+        - loadLevel(window, difficulty): void
+    }
+
+    class Scenery {
+        - background: ALLEGRO_BITMAP*
+        + loadBackground(path): bool
+        + update(seconds): void
+        + draw(): void
+    }
+
+    class SpriteBank {
+        - personFrames: vector<vector<ALLEGRO_BITMAP*>>
+        - vehicleFrames: vector<vector<vector<ALLEGRO_BITMAP*>>>
+        + load(spritesFolder): bool
+        + getPerson(color, frame): ALLEGRO_BITMAP*
+        + getVehicle(color, length, frame): ALLEGRO_BITMAP*
+    }
+
+    class Animation {
+        - frameCount: int
+        - secondsPerFrame: double
+        - elapsed: double
+        - currentFrame: int
+        + update(seconds): void
+        + getFrame(): int
+    }
+
+    class PassengerRenderer {
+        - walkAnimation: Animation
+        - idleAnimation: Animation
+        - ringAngle: float
+        - laneRows: vector<LaneRow>
+        - ringSlots: vector<RingSlot>
+        - walkers: vector<Walker>
+        + syncWithModel(): void
+        + update(seconds): void
+        + draw(): void
+        - resolveCollisions(): void
+    }
+
+    enum MenuOption {
+        None
+        Level1
+        Level2
+        Level3
+        Exit
+        Resume
+        Retire
+    }
+
+    abstract class MenuPanel {
+        - buttons: vector<MenuButton>
+        - hovered: MenuOption
+        - titleFont: ALLEGRO_FONT*
+        + loadFonts(fontPath): void
+        + setMousePosition(x, y): void
+        + optionAt(x, y): MenuOption
+        + update(seconds): void
+        + draw(): void
+        # addButton(option, label, detail, face, side, left, top, right, bottom): void
+        # {abstract} drawHeader(): void
+        # drawFooter(): void
+    }
+
+    class MainMenu {
+        # drawHeader(): void
+        # drawFooter(): void
+    }
+
+    class PauseMenu {
+        - levelName: string
+        + setLevelName(name): void
+        # drawHeader(): void
+        # drawFooter(): void
+    }
+
+    class PauseButton {
+        - hovered: bool
+        + setMousePosition(x, y): void
+        + contains(x, y): bool
+        + update(seconds): void
+        + draw(): void
+    }
+
+    class BoardRenderer {
+        - vehicleAnimation: Animation
+        + update(seconds): void
+        + draw(): void
+    }
+}
+
+ILevelLoader <|.. TextLevelLoader
+Controller --> ILevelLoader : carga niveles (DIP)
+Controller ..> LevelCatalog : dificultad -> archivo
+LevelCatalog ..> Difficulty
+TextLevelLoader ..> Traffic : agrega buses
+TextLevelLoader ..> Queue : agrega pasajeros
+
+IRenderable <|.. Scenery
+IRenderable <|.. PassengerRenderer
+IRenderable <|.. BoardRenderer
+IRenderable <|.. MenuPanel
+IRenderable <|.. PauseButton
+MenuPanel <|-- MainMenu
+MenuPanel <|-- PauseMenu
+MenuPanel ..> MenuOption
+MainMenu ..> LevelCatalog : nombres de nivel
+SceneryWindow ..> MainMenu : pantalla de menú
+SceneryWindow ..> PauseMenu : pantalla de pausa
+SceneryWindow ..> PauseButton : abre la pausa
+SceneryWindow ..> AllegroWindow : abre la ventana
+SceneryWindow --> Controller : pide cargar nivel
+SceneryWindow ..> IRenderable : dibuja la lista
+PassengerRenderer *-- Animation
+BoardRenderer *-- Animation
+PassengerRenderer --> SpriteBank
+BoardRenderer --> SpriteBank
+PassengerRenderer --> Queue : lee (solo lectura)
+PassengerRenderer --> WaitingRoom : lee (solo lectura)
+BoardRenderer --> Traffic : lee (solo lectura)
 
 Traffic "1" *-- "0..*" Bus : buses
 Parking "1" o-- "0..*" Bus : places

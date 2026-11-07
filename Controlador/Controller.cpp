@@ -1,135 +1,36 @@
 #include "Controller.h"
-#include "../Vista/Console.h"
-#include <fstream>
-#include <sstream>
 #include <string>
 #include <stdexcept>
 
 void Controller::loadLevel(const std::string& path) {
-    std::ifstream file(path);
+    // Le pide al cargador que lea el archivo y llene el tablero y la fila estática.
+    // Ej: con "nivel1_facil.txt" quedan 34 buses en traffic y 42 grupos en queue.
+    // La lectura del archivo ahora vive en TextLevelLoader (responsabilidad única).
+    levelLoader.load(path, traffic, queue);
 
-    if (!file.is_open()) {
-        throw std::runtime_error("No se pudo abrir el archivo del nivel");
-    }
-    queue.clear();
+    // Vacía la fila rotatoria del nivel anterior.
+    // Ej: al cambiar del nivel 1 al 2 no quedan pasajeros viejos en la glorieta.
+    waitingRoom.clear();
 
-    enum class Section {
-        NONE,
-        MATRIX,
-        PASSENGERS,
-        BUSES
-    };
+    // Llena la fila rotatoria con los primeros pasajeros de la fila estática.
+    // Ej: si caben 120 personas, pasan los primeros grupos hasta completar 120.
+    waitingRoom.fillFromQueue();
+}
 
-    Section section = Section::NONE;
-    std::string line;
-    int expectedPassengers = -1;
-    int loadedPassengers = 0;
-    int expectedBuses = -1;
-    int loadedBuses = 0;
+void Controller::loadLevel(Difficulty difficulty) {
+    // Carga el archivo que corresponde a la dificultad.
+    // Ej: Difficulty::Normal -> loadLevel("nivel2_normal.txt").
+    loadLevel(LevelCatalog::getFilePath(difficulty));
 
-    while (std::getline(file, line)) {
-        // Ignorar comentarios y líneas vacías.
-        const std::size_t firstCharacter = line.find_first_not_of(" \t\r");
-        if (firstCharacter == std::string::npos || line[firstCharacter] == '#') {
-            continue;
-        }
+    // Recuerda la dificultad cargada (solo si la carga no lanzó excepción).
+    // Ej: luego la ventana puede mostrar que se está en el nivel Normal.
+    currentDifficulty = difficulty;
+}
 
-        std::istringstream iss(line);
-        std::string first;
-
-        iss >> first;
-
-        // Detectar encabezados y cambiar de sección.
-        if (first == "MATRIZ") {
-            section = Section::MATRIX;
-            continue;
-        }
-
-        if (first == "PASAJEROS") {
-            if (!(iss >> expectedPassengers) || expectedPassengers < 0) {
-                throw std::runtime_error("Cantidad de pasajeros invalida");
-            }
-            section = Section::PASSENGERS;
-            continue;
-        }
-
-        if (first == "BUSES") {
-            if (!(iss >> expectedBuses) || expectedBuses < 0) {
-                throw std::runtime_error("Cantidad de buses invalida");
-            }
-            section = Section::BUSES;
-            continue;
-        }
-
-        // El tamaño del tablero.
-        if (first == "TABLERO") {
-            int width, height;
-            if (!(iss >> width >> height)) {
-                throw std::runtime_error("Dimensiones del tablero invalidas");
-            }
-            traffic.initializeBoard(width, height);
-            continue;
-        }
-
-        iss.clear();
-        iss.str(line);
-
-        // Procesar los datos según la sección actual.
-        switch (section) {
-            case Section::MATRIX: {
-                std::istringstream rowStream(line);
-                int cell;
-
-                while (rowStream >> cell) {
-                    // Guardar la fila para reconstruir el grid,
-                    // o utilizarla si Traffic permite cargar la matriz.
-                }
-
-                break;
-            }
-
-            case Section::PASSENGERS: {
-                int color, quantity;
-
-                if (!(iss >> color >> quantity) || color <= 0 || quantity <= 0) {
-                    throw std::runtime_error("Datos de pasajeros invalidos");
-                }
-
-                queue.add(Passager(color, quantity));
-                ++loadedPassengers;
-                break;
-            }
-
-            case Section::BUSES: {
-                int id, color, x, y, length, capacity;
-                std::string direction;
-
-                if (!(iss >> id >> color >> x >> y
-                        >> direction >> length >> capacity)) {
-                    throw std::runtime_error("Datos de bus invalidos");
-                }
-
-                // length se lee para respetar el formato; Bus calcula su longitud desde capacity.
-                Bus bus(id, capacity, color, direction, x, y);
-                if (!traffic.addBus(bus)) {
-                    throw std::runtime_error("No se pudo agregar el bus " + std::to_string(id));
-                }
-
-                ++loadedBuses;
-                break;
-            }
-
-            case Section::NONE:
-                break;
-        }
-    }
-
-    if (expectedPassengers < 0 || loadedPassengers != expectedPassengers) {
-        throw std::runtime_error("La cantidad de pasajeros no coincide con el nivel");
-    }
-    if (expectedBuses < 0 || loadedBuses != expectedBuses) {
-        throw std::runtime_error("La cantidad de buses no coincide con el nivel");
-    }
+Difficulty Controller::getCurrentDifficulty() const {
+    // Retorna la dificultad del último nivel cargado.
+    // Ej: Difficulty::Easy al empezar el juego.
+    return currentDifficulty;
 }
 
 bool Controller::processCommand(const std::string& command) {
