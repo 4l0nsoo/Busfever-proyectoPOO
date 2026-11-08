@@ -35,6 +35,8 @@ class Parking {
     + findBus(color): Bus*
     + dispatch(index): void
     + isFull(): bool
+    + getBuses(): const vector<Bus>&
+    + clear(): void
 }
 
 class Traffic {
@@ -76,13 +78,34 @@ class WaitingRoom {
 }
 
 class Console {
+    - pendingInput: string
     + printBoard(traffic): void
     + readCommand(): string
     + printMessage(message): void
     + printError(error): void
     + printWin(): void
     + printLoss(): void
+    + tryReadCommand(command): bool
 }
+
+class ConsoleGame {
+    - controller: Controller&
+    - traffic: const Traffic&
+    - console: Console&
+    + run(): void
+    - chooseLevel(): bool
+}
+
+class ParkingRenderer {
+    - vehicleAnimation: Animation
+    + update(seconds): void
+    + draw(): void
+}
+
+ConsoleGame --> Controller : procesa los IDs (solo consola)
+ConsoleGame --> Console : imprime y lee
+ParkingRenderer --> Parking : lee (solo lectura)
+IRenderable <|.. ParkingRenderer
 
 class Controller {
     - traffic: Traffic&
@@ -276,6 +299,9 @@ Controller --> Parking : verifica cupo y recibe buses
 Controller --> Queue : carga pasajeros del nivel
 Controller --> WaitingRoom : conserva referencia
 Console --> Traffic : consulta grid y direcciones
+
+SceneryWindow --> Console : la consola juega, la ventana refleja
+SceneryWindow ..> ParkingRenderer
 
 note bottom of Traffic
     grid[y][x]: 0 significa celda libre;

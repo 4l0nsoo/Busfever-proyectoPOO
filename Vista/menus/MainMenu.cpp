@@ -1,5 +1,7 @@
 #include "MainMenu.h"
-#include "../Controlador/LevelCatalog.h"
+// Nombres de los niveles; desde Vista/menus/ hay que subir dos carpetas para llegar a Controlador/.
+// Ej: "../../" sube de Vista/menus/ a Vista/ y de Vista/ a la carpeta del proyecto.
+#include "../../Controlador/LevelCatalog.h"
 
 // Espacio de nombres anónimo: medidas que solo usa este archivo.
 // Ej: otro .cpp no puede cambiar PANEL_TOP.

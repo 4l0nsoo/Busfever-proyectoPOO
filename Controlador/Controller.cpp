@@ -15,6 +15,10 @@ void Controller::loadLevel(const std::string& path) {
     // Llena la fila rotatoria con los primeros pasajeros de la fila estática.
     // Ej: si caben 120 personas, pasan los primeros grupos hasta completar 120.
     waitingRoom.fillFromQueue();
+
+    // Corrección: vacía el parqueadero del nivel anterior.
+    // Ej: sin esto, al cargar otro nivel seguían los buses del nivel anterior y se llenaba enseguida.
+    parking.clear();
 }
 
 void Controller::loadLevel(Difficulty difficulty) {

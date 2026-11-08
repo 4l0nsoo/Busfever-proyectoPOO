@@ -41,7 +41,9 @@
  */
 
 #pragma once
-#include "IRenderable.h"
+// Interfaz de todo lo que se dibuja; está en Vista/, una carpeta arriba de Vista/menus/.
+// Ej: "../" significa "subir a la carpeta de arriba".
+#include "../IRenderable.h"
 
 // Trae ALLEGRO_COLOR y los tipos básicos de Allegro.
 // Ej: el color verde de un botón.

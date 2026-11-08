@@ -1,5 +1,7 @@
 #include "MenuPanel.h"
-#include "SceneLayout.h"
+// Medidas de la ventana; están en Vista/, una carpeta arriba de Vista/menus/.
+// Ej: SceneLayout::WIDTH = 576.
+#include "../SceneLayout.h"
 
 // Módulo de fuentes .ttf.
 // Ej: al_load_ttf_font("arialbd.ttf", 44, 0).

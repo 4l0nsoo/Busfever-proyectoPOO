@@ -3,30 +3,30 @@
 #include "SpriteBank.h"
 #include "PassengerRenderer.h"
 #include "BoardRenderer.h"
-#include "MainMenu.h"
-#include "PauseMenu.h"
+#include "ParkingRenderer.h"
+// Menús de la ventana: ahora están en la carpeta Vista/menus/.
+// Ej: "menus/MainMenu.h" busca el archivo dentro de esa carpeta.
+#include "menus/MainMenu.h"
+#include "menus/PauseMenu.h"
 #include "PauseButton.h"
-
-// Trae std::cerr para mostrar errores en la consola.
-// Ej: std::cerr << "No se pudo cargar el nivel";
-#include <iostream>
 
 // Trae std::exception para atrapar los errores al cargar un nivel.
 // Ej: catch (const std::exception& error).
 #include <exception>
 
-// Trae std::vector para las listas de cosas que se dibujan.
-// Ej: {fondo, menú} o {fondo, personas, buses}.
+// Trae std::vector para la lista de cosas que se dibujan.
+// Ej: {fondo, personas, tablero, parqueadero}.
 #include <vector>
 
-// Constructor: guarda las referencias al Controller y al modelo, y las rutas.
-// Ej: SceneryWindow(controller, traffic, queue, waitingRoom) usa las rutas por defecto.
+// Constructor: guarda las referencias al Controller, al modelo y a la consola, y las rutas.
+// Ej: SceneryWindow(controller, traffic, queue, waitingRoom, parking, console).
 SceneryWindow::SceneryWindow(Controller& controller, const Traffic& traffic, const Queue& queue,
-                             const WaitingRoom& waitingRoom, const std::string& title,
-                             const std::string& backgroundPath, const std::string& spritesPath,
-                             const std::string& fontPath)
+                             const WaitingRoom& waitingRoom, const Parking& parking, Console& console,
+                             const std::string& title, const std::string& backgroundPath,
+                             const std::string& spritesPath, const std::string& fontPath)
     : controller(controller), traffic(traffic), queue(queue), waitingRoom(waitingRoom),
-      title(title), backgroundPath(backgroundPath), spritesPath(spritesPath), fontPath(fontPath) {}
+      parking(parking), console(console), title(title), backgroundPath(backgroundPath),
+      spritesPath(spritesPath), fontPath(fontPath) {}
 
 bool SceneryWindow::loadLevel(AllegroWindow& window, Difficulty difficulty) {
     // Intenta cargar el nivel; si el archivo tiene errores, se atrapa la excepción.
@@ -42,9 +42,9 @@ bool SceneryWindow::loadLevel(AllegroWindow& window, Difficulty difficulty) {
                         " (" + LevelCatalog::getName(difficulty) + ")");
         return true;
     } catch (const std::exception& error) {
-        // Muestra en la consola por qué no se pudo cargar.
-        // Ej: "No se pudo cargar el nivel: No se pudo abrir el archivo del nivel: ...".
-        std::cerr << "No se pudo cargar el nivel: " << error.what() << std::endl;
+        // Muestra en la consola por qué no se pudo cargar (igual que el juego de consola).
+        // Ej: "No se pudo abrir el archivo del nivel: nivel2_normal.txt".
+        console.printMessage(error.what());
         return false;
     }
 }
@@ -55,7 +55,7 @@ bool SceneryWindow::run() {
     AllegroWindow window;
 
     // Enciende Allegro y abre la ventana; si falla, se avisa con false.
-    // Ej: el main puede mostrar un mensaje de error en la consola.
+    // Ej: el main juega entonces solo por consola.
     if (!window.initialize(title)) {
         return false;
     }
@@ -85,51 +85,75 @@ bool SceneryWindow::run() {
     // Ej: esquina de arriba a la derecha.
     PauseButton pauseButton;
 
-    // Crea el que dibuja a las personas (con colisiones) y el que dibuja los buses.
-    // Ej: los dos leen el modelo, que se llena al elegir un nivel.
+    // Los que dibujan a las personas, el tablero y el parqueadero.
+    // Ej: los tres leen el modelo en cada cuadro, así reflejan lo que pasa en la consola.
     PassengerRenderer passengers(queue, waitingRoom, sprites);
     BoardRenderer board(traffic, sprites);
+    ParkingRenderer parkingView(parking, sprites);
 
     // Capas de cada pantalla, en orden: lo primero queda al fondo.
     // Gracias al polimorfismo, el ciclo trata a todas igual (como IRenderable).
     // Ej: en pausa se dibuja el juego congelado y encima el menú de pausa.
     const std::vector<IRenderable*> menuLayers = {&scenery, &mainMenu};
-    const std::vector<IRenderable*> playLayers = {&scenery, &passengers, &board, &pauseButton};
-    const std::vector<IRenderable*> pausedLayers = {&scenery, &passengers, &board, &pauseMenu};
+    const std::vector<IRenderable*> playLayers = {&scenery, &passengers, &board, &parkingView, &pauseButton};
+    const std::vector<IRenderable*> pausedLayers = {&scenery, &passengers, &board, &parkingView, &pauseMenu};
 
     // En pausa solo se actualiza el menú de pausa: el juego queda congelado.
-    // Ej: las personas dejan de caminar y la glorieta deja de girar.
+    // Ej: las personas dejan de caminar.
     const std::vector<IRenderable*> pausedUpdates = {&pauseMenu};
 
     // Pantalla actual: se empieza en el menú principal.
     // Ej: pasa a Screen::Playing cuando se elige un nivel.
     Screen screen = Screen::Menu;
 
-    // Indica si la ventana sigue abierta.
-    // Ej: se pone en false al cerrar la ventana o elegir "Salir".
-    bool running = true;
+    // Indica si ya se ganó el nivel actual (ya no quedan buses en el tablero).
+    // Ej: true después de sacar el último bus.
+    bool levelWon = false;
 
-    // Indica si toca volver a dibujar la pantalla.
-    // Ej: empieza en true para dibujar apenas se abre la ventana.
+    // Indica si la ventana sigue abierta y si toca volver a dibujar.
+    // Ej: running pasa a false al cerrar la ventana o elegir "Salir".
+    bool running = true;
     bool redraw = true;
 
-    // Arranca el reloj de 60 cuadros por segundo.
+    // Muestra en la consola las opciones del menú principal.
+    // Ej: se llama al abrir la ventana y al volver al menú.
+    // (Una lambda es una función pequeña escrita dentro de otra; [&] le deja usar las variables de run.)
+    auto showMenuInConsole = [&]() {
+        console.printMessage("");
+        console.printMessage("=== Bus Fever Party! ===");
+        console.printMessage("Elige un nivel en la ventana o escribe 1 (Facil), 2 (Normal) o 3 (Dificil). 'salir' para cerrar:");
+    };
+
+    // Un turno del juego de consola: imprime el tablero y pide el ID de un bus (igual que antes).
+    // Ej: "Ingrese el ID de un bus o 'salir':".
+    auto showTurnInConsole = [&]() {
+        console.printBoard(traffic);
+        console.printMessage("Ingrese el ID de un bus o 'salir':");
+    };
+
+    // Vuelve al menú principal (desde la consola o desde "Retirarse").
+    // Ej: hay que elegir un nivel otra vez.
+    auto goToMenu = [&]() {
+        screen = Screen::Menu;
+        window.setTitle(title);
+        showMenuInConsole();
+    };
+
+    // Muestra el menú en la consola y arranca el reloj de 60 cuadros por segundo.
     // Ej: desde aquí llegan eventos ALLEGRO_EVENT_TIMER.
+    showMenuInConsole();
     window.startTimer();
 
     // Ciclo principal: se repite mientras la ventana esté abierta.
     // Ej: cada vuelta atiende un evento y, si toca, redibuja.
     while (running) {
-        // Variable donde se guarda el evento que llegó.
-        // Ej: puede ser una tecla, un clic, mover el mouse o un tic del reloj.
-        ALLEGRO_EVENT event;
-
         // Espera (sin gastar procesador) a que llegue un evento.
-        // Ej: si no pasa nada, llega el siguiente tic en 1/60 de segundo.
+        // Ej: una tecla, un clic, mover el mouse o un tic del reloj.
+        ALLEGRO_EVENT event;
         window.waitForEvent(event);
 
-        // Nivel que el usuario pidió en este evento (0 = ninguno).
-        // Ej: un clic en "Nivel 2" o la tecla 2 en el menú lo ponen en 2.
+        // Nivel que se pidió en este evento (0 = ninguno).
+        // Ej: un clic en "Nivel 2", la tecla 2 o escribir "2" en la consola lo ponen en 2.
         int requestedLevel = 0;
 
         // Si el usuario presionó la X de la ventana, se sale del ciclo.
@@ -144,9 +168,6 @@ bool SceneryWindow::run() {
             // Ej: con escala 0.77, x = 222 de la ventana es x = 288.
             const float x = window.toLogical(event.mouse.x);
             const float y = window.toLogical(event.mouse.y);
-
-            // Le pasa la posición a lo que esté en pantalla.
-            // Ej: en el juego, al botón de pausa.
             if (screen == Screen::Menu) {
                 mainMenu.setMousePosition(x, y);
             } else if (screen == Screen::Playing) {
@@ -156,7 +177,7 @@ bool SceneryWindow::run() {
             }
         }
         // Si hizo clic, se revisa qué tocó según la pantalla.
-        // Ej: clic en "Retirarse" vuelve al menú principal.
+        // Ej: clic en "Nivel 1" carga el nivel fácil.
         else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
             // Posición del clic en medidas del diseño.
             // Ej: (530, 46) es el botón de pausa.
@@ -179,6 +200,7 @@ bool SceneryWindow::run() {
             else if (screen == Screen::Playing) {
                 if (pauseButton.contains(x, y)) {
                     screen = Screen::Paused;
+                    console.printMessage("Juego en pausa.");
                 }
             }
             // En la pausa: "Continuar" vuelve al juego y "Retirarse" al menú principal.
@@ -187,22 +209,20 @@ bool SceneryWindow::run() {
                 const MenuOption option = pauseMenu.optionAt(x, y);
                 if (option == MenuOption::Resume) {
                     screen = Screen::Playing;
+                    console.printMessage("Juego reanudado.");
+                    showTurnInConsole();
                 } else if (option == MenuOption::Retire) {
-                    screen = Screen::Menu;
-                    window.setTitle(title);
+                    goToMenu();
                 }
             }
             redraw = true;
         }
-        // Si presionó una tecla, se revisa cuál fue según la pantalla.
+        // Si presionó una tecla en la ventana, se revisa cuál fue según la pantalla.
         // Ej: event.keyboard.keycode dice cuál tecla fue.
         else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-            // Código de la tecla presionada.
+            // Código de la tecla y si es una de las teclas de pausa (ESC o P).
             // Ej: ALLEGRO_KEY_P para la letra P.
             const int key = event.keyboard.keycode;
-
-            // ESC o P sirven para pausar y para continuar.
-            // Ej: ESC en el juego abre la pausa; ESC en la pausa la cierra.
             const bool pauseKey = (key == ALLEGRO_KEY_ESCAPE || key == ALLEGRO_KEY_P);
 
             // En el menú principal: 1, 2, 3 eligen nivel y ESC cierra la ventana.
@@ -221,56 +241,128 @@ bool SceneryWindow::run() {
             else if (screen == Screen::Playing) {
                 if (pauseKey) {
                     screen = Screen::Paused;
+                    console.printMessage("Juego en pausa.");
                 }
             }
             // En la pausa: ESC o P vuelven al juego.
             // Ej: igual que hacer clic en "Continuar".
             else if (pauseKey) {
                 screen = Screen::Playing;
+                console.printMessage("Juego reanudado.");
+                showTurnInConsole();
             }
             redraw = true;
         }
-        // Si fue un tic del reloj, se avanzan las animaciones de la pantalla actual.
+        // Si fue un tic del reloj: se lee la consola (sin detener la ventana) y se avanzan las animaciones.
         // Ej: 60 veces por segundo.
         else if (event.type == ALLEGRO_EVENT_TIMER) {
-            // Lo que se actualiza en cada pantalla (en pausa, solo el menú de pausa).
-            // Ej: en el juego, fondo, personas, buses y botón de pausa.
+            // Comando escrito en la consola (si el usuario ya presionó Enter).
+            // Ej: "12".
+            std::string command;
+            if (console.tryReadCommand(command)) {
+                // En el menú principal: "1", "2" o "3" eligen nivel y "salir" cierra.
+                // Ej: "2" -> nivel normal.
+                if (screen == Screen::Menu) {
+                    Difficulty chosen;
+                    if (command == "salir") {
+                        running = false;
+                    } else if (command.size() == 1 && LevelCatalog::fromNumber(command[0] - '0', chosen)) {
+                        requestedLevel = command[0] - '0';
+                    } else {
+                        console.printError("Nivel invalido.");
+                        showMenuInConsole();
+                    }
+                }
+                // En la pausa: los comandos esperan hasta continuar.
+                // Ej: "p" o "continuar" siguen; "salir" se retira al menú.
+                else if (screen == Screen::Paused) {
+                    if (command == "p" || command == "continuar") {
+                        screen = Screen::Playing;
+                        console.printMessage("Juego reanudado.");
+                        showTurnInConsole();
+                    } else if (command == "salir") {
+                        goToMenu();
+                    } else {
+                        console.printMessage("El juego esta en pausa: escribe 'p' para continuar o 'salir' para retirarte.");
+                    }
+                }
+                // En el juego: "salir" vuelve al menú (antes terminaba la partida).
+                // Ej: el usuario escribe "salir".
+                else if (command == "salir") {
+                    goToMenu();
+                }
+                // Si ya se ganó, no quedan buses que mover.
+                // Ej: se le recuerda cómo volver al menú.
+                else if (levelWon) {
+                    console.printMessage("Ya no quedan buses. Escribe 'salir' para volver al menu.");
+                }
+                // Lógica del juego de consola: el Controller procesa el ID y la consola muestra el resultado.
+                // Ej: "2" -> "Bus enviado al estacionamiento." y la ventana mueve el bus 2 al parqueadero.
+                else if (!command.empty()) {
+                    if (controller.processCommand(command)) {
+                        console.printMessage("Bus enviado al estacionamiento.");
+                    } else {
+                        console.printError("ID invalido, bus bloqueado o estacionamiento lleno. Intente de nuevo.");
+                    }
+
+                    // Si ya no quedan buses en el tablero, se ganó (misma condición que el juego de consola).
+                    // Ej: después de sacar el último bus -> "Ganaste." en la consola y en el título de la ventana.
+                    if (traffic.getBusCount() == 0) {
+                        levelWon = true;
+                        console.printWin();
+                        console.printMessage("Escribe 'salir' para volver al menu.");
+                        window.setTitle(title + " - ¡Ganaste!");
+                    } else {
+                        // Si no, se muestra el siguiente turno (tablero y pregunta), como en el ciclo de consola.
+                        // Ej: el tablero ya sin el bus 2.
+                        showTurnInConsole();
+                    }
+                }
+                // Una línea vacía solo vuelve a mostrar el turno.
+                // Ej: el usuario presionó Enter sin escribir nada.
+                else {
+                    showTurnInConsole();
+                }
+            }
+
+            // Lo que se anima en cada pantalla (en pausa solo el menú de pausa).
+            // Ej: en el juego, fondo, personas, tablero, parqueadero y botón de pausa.
             const std::vector<IRenderable*>& updates =
                 (screen == Screen::Menu) ? menuLayers :
                 (screen == Screen::Playing) ? playLayers : pausedUpdates;
-
-            // Avanza la animación (y la física de las personas) con el tiempo de un cuadro.
-            // Ej: las personas caminan y se separan si se chocan.
             for (IRenderable* layer : updates) {
                 layer->update(window.getFrameSeconds());
             }
             redraw = true;
         }
 
-        // Dificultad que corresponde al nivel pedido.
-        // Ej: 2 -> Difficulty::Normal.
+        // Si se pidió un nivel válido y cargó bien, empieza la partida.
+        // Ej: clic en "Nivel 1" o escribir "1" -> se carga nivel1_facil.txt.
         Difficulty difficulty;
-
-        // Si se pidió un nivel válido y cargó bien, se pasa a la pantalla del juego.
-        // Ej: clic en "Nivel 1" -> se carga nivel1_facil.txt y se ven los buses.
         if (LevelCatalog::fromNumber(requestedLevel, difficulty) && loadLevel(window, difficulty)) {
             // Crea los caminantes del nivel recién cargado.
             // Ej: 120 en la glorieta y los demás esperando en los caminos.
             passengers.syncWithModel();
 
-            // Le dice al menú de pausa qué nivel se está jugando.
+            // Nombre del nivel para el menú de pausa y la consola.
             // Ej: "Nivel 2 (Normal)".
-            pauseMenu.setLevelName("Nivel " + std::to_string(LevelCatalog::getNumber(difficulty)) +
-                                   " (" + LevelCatalog::getName(difficulty) + ")");
+            const std::string levelName = "Nivel " + std::to_string(LevelCatalog::getNumber(difficulty)) +
+                                          " (" + LevelCatalog::getName(difficulty) + ")";
+            pauseMenu.setLevelName(levelName);
             screen = Screen::Playing;
+            levelWon = false;
             redraw = true;
+
+            // La consola empieza el juego de este nivel: título, tablero y pregunta.
+            // Ej: "=== Nivel 1 (Fácil) ===" y el tablero con los 34 buses.
+            console.printMessage("");
+            console.printMessage("=== " + levelName + " ===");
+            showTurnInConsole();
         }
 
         // Dibuja solo si toca y si no quedan eventos pendientes.
         // Ej: si llegaron 3 tics juntos, se dibuja una sola vez, no tres.
         if (redraw && window.isEventQueueEmpty()) {
-            // Ya se va a dibujar, así que se baja la bandera.
-            // Ej: volverá a true con el siguiente tic.
             redraw = false;
 
             // Capas de la pantalla actual.
@@ -279,8 +371,8 @@ bool SceneryWindow::run() {
                 (screen == Screen::Menu) ? menuLayers :
                 (screen == Screen::Playing) ? playLayers : pausedLayers;
 
-            // Dibuja cada capa en orden.
-            // Ej: layer->draw() llama al draw() de cada clase (polimorfismo).
+            // Dibuja cada capa en orden (cada una con su propio draw: polimorfismo).
+            // Ej: fondo, personas, tablero, parqueadero y botón de pausa.
             for (const IRenderable* layer : layers) {
                 layer->draw();
             }
