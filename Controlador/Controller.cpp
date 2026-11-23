@@ -72,3 +72,7 @@ bool Controller::processCommand(const std::string& command) {
     parking.receiveBus(busLeaving);
     return true;
 }
+
+bool Controller::win() const {
+    return waitingRoom.bothRowsEmpty();
+}
