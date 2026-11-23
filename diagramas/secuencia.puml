@@ -1,42 +1,73 @@
 @startuml secuencia
 
 actor Usuario
+participant Main
 participant Console
 participant Controller
 participant Traffic
 participant Parking
-participant WaitingRoom
+participant Queue
 
-Console -> Usuario : imprime el tablero en ASCII
+Main -> Controller : loadLevel(path)
+Controller -> Queue : clear()
+Controller -> Traffic : initializeBoard(width, height)
+loop por cada linea de PASAJEROS
+    Controller -> Queue : add(Passager(color, cantidad))
+end
+loop por cada linea de BUSES
+    Controller -> Traffic : addBus(bus)
+    Traffic --> Controller : agregado / error de ubicacion
+end
+Controller --> Main : nivel cargado
 
-loop hasta que el comando sea válido
-    Usuario -> Console : "mover bus 10 arriba"
-    Console -> Controller : texto del comando
-    Controller -> Controller : interpretar(comando)
+loop mientras haya buses y el usuario no salga
+    Main -> Console : printBoard(Traffic)
+    Console -> Traffic : getGrid(), getBuses()
+    Traffic --> Console : matriz e IDs/direcciones
+    Console -> Usuario : muestra matriz con flechas
+    Main -> Console : readCommand()
+    Usuario -> Console : ID o "salir"
+    Console --> Main : comando
 
-    alt comando no válido
-        Controller -> Console : error de comprensión
-        Console -> Usuario : muestra el error y pide otro comando
-    else bus no existe
+    alt comando es "salir" o esta vacio
+        Main -> Main : termina el bucle
+    else se procesa un ID
+        Main -> Controller : processCommand(comando)
         Controller -> Traffic : getBus(id)
-        Traffic --> Controller : no encontrado
-        Controller -> Console : bus no encontrado
-        Console -> Usuario : muestra el error y pide otro comando
+        Traffic --> Controller : bus / null
+
+        alt ID invalido o bus inexistente
+            Controller --> Main : false
+            Main -> Console : printError(...)
+        else bus existe
+            Controller -> Parking : isFull()
+            alt estacionamiento lleno
+                Parking --> Controller : true
+                Controller --> Main : false
+                Main -> Console : printError(...)
+            else hay espacio
+                Parking --> Controller : false
+                Controller -> Traffic : canExit(bus)
+                Traffic --> Controller : libre / bloqueado
+
+                alt camino libre
+                    Controller -> Traffic : removeBus(id)
+                    Traffic --> Controller : bus retirado
+                    Controller -> Parking : receiveBus(bus)
+                    Controller --> Main : true
+                    Main -> Console : printMessage("Bus enviado...")
+                else bloqueado
+                    Controller --> Main : false
+                    Main -> Console : printError(...)
+                end
+            end
+        end
     end
 end
 
-Controller -> Traffic : canExit(bus)
-
-alt camino libre
-    Traffic --> Controller : true
-    Controller -> Traffic : quitar bus del grid
-    Controller -> Parking : ride(bus)
-    Controller -> WaitingRoom : freePassager()
-else bloqueado
-    Traffic --> Controller : false
-    Controller -> Console : bus bloqueado
+opt no quedan buses en Traffic
+    Main -> Console : printWin()
+    Console -> Usuario : "Ganaste."
 end
-
-Console -> Usuario : imprime el tablero actualizado
 
 @enduml

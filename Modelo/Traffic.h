@@ -15,16 +15,14 @@
  *   Traffic
  *
  * Responsabilidades:
- *  - Guardar la cuadrícula del tráfico (grid), donde cada celda tiene el id del bus que la ocupa y 0 si está libre.
- *  - Leer el comando escrito por el usuario:
- *  - Mostrar mensajes, errores y el resultado final (ganar o perder).
- *  - Crear un tablero vacío de width x height celdas (constructor)
- *  - Agregar un bus al tablero y marcar sus celdas, rechazándolo si se sale del tablero o choca con otro (addBus)
- *  - Quitar un bus del nivel y liberar sus celdas (removeBus)
-
+ *  - Guardar la cuadrícula del tráfico; cada celda contiene el id del bus que la ocupa o 0 si está libre.
+ *  - Crear o inicializar un tablero vacío de width x height celdas.
+ *  - Agregar buses al vector del nivel y marcar sus celdas, rechazándolos si salen del tablero o chocan.
+ *  - Quitar un bus del nivel y liberar sus celdas.
+ *
  * Colaboradores:
  *   - Bus:
- *      - Traffic usa Bus para guardadr los buses, leer sus datos y devolverlos.
+ *      - Traffic usa Bus para guardar los buses y consultar sus datos.
  *
  * -----------------------------------------------------------------------------
  *
@@ -56,41 +54,43 @@ private:
     // Los buses del nivel con todos sus datos (id, color, capacidad, dirección, posición).
     std::vector<Bus> buses;
  
-    //direcciones traducidas a pasos
+    // Traduce las direcciones a pasos dentro de la cuadrícula.
     static bool directionStep(const std::string& direction, int& dx, int& dy);
  
-    //retorna (True) si (x,y) está dentro del tablero
+    // Retorna true si (x,y) está dentro del tablero.
     bool inBounds(int x, int y) const;
  
 public:
     Traffic() = default;
  
-    //Crea un tablero vacío de width x height celdas
+    // Crea un tablero vacío de width x height celdas.
     Traffic(int width, int height);
  
-    //FIFO, retorna (False) si el bus se sale del tablero o se choca con otro
+    // Inicializa el tablero y limpia los buses cargados previamente.
+    void initializeBoard(int width, int height);
+
+    // Agrega el bus al vector y marca sus celdas; retorna false si no puede ubicarse.
     bool addBus(const Bus& bus);
  
-    //quita la bus del nivel 
+    // Quita el bus del nivel y libera sus celdas.
     bool removeBus(int id);
  
-    //revisa si el camino está libre,
-
-    void addBus(const Bus& bus);
-
     /**
      *  Revisa si un bus tiene el camino libre hasta el borde del tablero.
-     *  Bus que se quiere sacar.
+     *  El bus que se quiere sacar.
      *  true si todas las celdas del camino valen 0, false si encuentra otro bus.
      */
     bool canExit(const Bus& bus) const;
  
-    //busca el bus por su identificación (id)
+    // Busca el bus por su identificación (id).
     Bus* getBus(int id);
- 
-    //Leer grid para que la consola lo imprima
+
+    // Permite consultar los buses para mostrar sus datos en consola.
+    const std::vector<Bus>& getBuses() const;
+
+    // Permite que la consola lea la cuadrícula.
     const std::vector<std::vector<int>>& getGrid() const;
  
-    //función que muestra la cantidad de buses que siguen en el tablero
+    // Retorna la cantidad de buses que siguen en el tablero.
     int getBusCount() const;
 };

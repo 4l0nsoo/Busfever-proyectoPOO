@@ -1,67 +1,311 @@
 @startuml arquitectura
 
-    class Bus{
-        - id:int
-        - capacity:int
-        - color:int 
-        - direction: string
-        - x:int
-        - y:int
-        + getLength():int
-        + board():int
-        + isFull():bool
-    }
-    
-    class Passager{
-        - color: int
-        - groupAmount: int
-        + split(): Passager
+class Bus {
+    - id: int
+    - capacity: int
+    - color: int
+    - direction: string
+    - x: int
+    - y: int
+    - seatsLeft: int
+    + Bus(id, capacity, color, direction, x, y)
+    + mover(): void
+    + board(n): int
+    + isFull(): bool
+    + getLength(): int
+    + getId(): int
+    + getColor(): int
+    + getDirection(): string
+    + getX(): int
+    + getY(): int
+}
+
+class Passager {
+    - color: int
+    - groupAmount: int
+    + Passager(color, groupAmount)
+    + split(n): Passager
+    + getColor(): int
+    + getGroupAmount(): int
+}
+
+class Parking {
+    - places: vector<Bus>
+    + receiveBus(bus): void
+    + findBus(color): Bus*
+    + dispatch(index): void
+    + isFull(): bool
+    + getBuses(): const vector<Bus>&
+    + clear(): void
+}
+
+class Traffic {
+    - grid: vector<vector<int>>
+    - buses: vector<Bus>
+    + Traffic(width, height)
+    + initializeBoard(width, height): void
+    + addBus(bus): bool
+    + removeBus(id): bool
+    + canExit(bus): bool
+    + getBus(id): Bus*
+    + getBuses(): const vector<Bus>&
+    + getGrid(): const vector<vector<int>>&
+    + getBusCount(): int
+}
+
+class Queue {
+    - queue: vector<Passager>
+    + add(passager): void
+    + clear(): void
+    + personQueue(): void
+    + removerFirstPassanger(): Passager
+    + emptyFila(): bool
+    + takeFront(maxAmount): Passager
+    + getPassengers(): const vector<Passager>&
+}
+
+class WaitingRoom {
+    + {static} CAPACITY: int = 120
+    - seats: vector<Passager>
+    - parking: Parking&
+    - queue: Queue&
+    + freePassager(slots): void
+    + fillBus(bus): void
+    + clear(): void
+    + fillFromQueue(): void
+    + getPeopleCount(): int
+    + getSeats(): const vector<Passager>&
+}
+
+class Console {
+    - pendingInput: string
+    + printBoard(traffic): void
+    + readCommand(): string
+    + printMessage(message): void
+    + printError(error): void
+    + printWin(): void
+    + printLoss(): void
+    + tryReadCommand(command): bool
+}
+
+class ConsoleGame {
+    - controller: Controller&
+    - traffic: const Traffic&
+    - console: Console&
+    + run(): void
+    - chooseLevel(): bool
+}
+
+class ParkingRenderer {
+    - vehicleAnimation: Animation
+    + update(seconds): void
+    + draw(): void
+}
+
+ConsoleGame --> Controller : procesa los IDs (solo consola)
+ConsoleGame --> Console : imprime y lee
+ParkingRenderer --> Parking : lee (solo lectura)
+IRenderable <|.. ParkingRenderer
+
+class Controller {
+    - traffic: Traffic&
+    - parking: Parking&
+    - waitingRoom: WaitingRoom&
+    - queue: Queue&
+    - defaultLoader: TextLevelLoader
+    - levelLoader: const ILevelLoader&
+    - currentDifficulty: Difficulty
+    + loadLevel(path): void
+    + loadLevel(difficulty): void
+    + getCurrentDifficulty(): Difficulty
+    + processCommand(command): bool
+}
+
+enum Difficulty {
+    Easy = 1
+    Normal = 2
+    Hard = 3
+}
+
+class LevelCatalog {
+    + {static} getFilePath(difficulty): string
+    + {static} getName(difficulty): string
+    + {static} getNumber(difficulty): int
+    + {static} fromNumber(number, difficulty&): bool
+}
+
+interface ILevelLoader {
+    + {abstract} load(path, traffic, queue): void
+}
+
+class TextLevelLoader {
+    + load(path, traffic, queue): void
+}
+
+package Vista {
+    interface IRenderable {
+        + {abstract} update(seconds): void
+        + {abstract} draw(): void
     }
 
-    class Parking{
-        + places: <vector>
-        + dispatch(): void
-        + findBus():Bus
-        + isFull():bool
+    class AllegroWindow {
+        - display: ALLEGRO_DISPLAY*
+        - eventQueue: ALLEGRO_EVENT_QUEUE*
+        - timer: ALLEGRO_TIMER*
+        - scale: float
+        + initialize(title): bool
+        + startTimer(): void
+        + waitForEvent(event): void
+        + present(): void
+        + setTitle(title): void
+        + getFrameSeconds(): double
     }
 
-    class Traffic{
-        - grid: vector<vector<int>>
-        - buses: vector<Bus>
-        + canExit(bus: Bus): bool
-        // se trabaja con la logica de plano cartesiano
-        //y+1=arriba, x+1=derecha
-        //y-1=abajo, x-1=izquierda
+    class SceneryWindow {
+        - controller: Controller&
+        - traffic: const Traffic&
+        - queue: const Queue&
+        - waitingRoom: const WaitingRoom&
+        + run(): bool
+        - loadLevel(window, difficulty): void
     }
 
-    class Queue{
-        - queue:<vector>
-        + personQueue():void
+    class Scenery {
+        - background: ALLEGRO_BITMAP*
+        + loadBackground(path): bool
+        + update(seconds): void
+        + draw(): void
     }
 
-    class WaitingRoom{
-        - seats:<vector>
-        + freePassager():void
-        + fillBus(Bus):void
+    class SpriteBank {
+        - personFrames: vector<vector<ALLEGRO_BITMAP*>>
+        - vehicleFrames: vector<vector<vector<ALLEGRO_BITMAP*>>>
+        + load(spritesFolder): bool
+        + getPerson(color, frame): ALLEGRO_BITMAP*
+        + getVehicle(color, length, frame): ALLEGRO_BITMAP*
     }
 
-    class Console{
-        + printBoard():void
-        + printMessage():void
-        + printError():void
-        + printWin():void
-        + printLoss():void
+    class Animation {
+        - frameCount: int
+        - secondsPerFrame: double
+        - elapsed: double
+        - currentFrame: int
+        + update(seconds): void
+        + getFrame(): int
     }
 
-    class Controller{
-        + processCommand():bool
-        + loadLevel(<string>):void 
+    class PassengerRenderer {
+        - walkAnimation: Animation
+        - idleAnimation: Animation
+        - ringAngle: float
+        - laneRows: vector<LaneRow>
+        - ringSlots: vector<RingSlot>
+        - walkers: vector<Walker>
+        + syncWithModel(): void
+        + update(seconds): void
+        + draw(): void
+        - resolveCollisions(): void
     }
-    Traffic "1" o-- "*" Bus
-    Queue "1" *-- "*" Passager
-    Parking "1" o-- "*" Bus
-    WaitingRoom --> Parking : llena buses
-    WaitingRoom --> Queue : toma grupos de
-    Controller --> Traffic : el usuario maneja
-    WaitingRoom "1" o-- "*" Passager
+
+    enum MenuOption {
+        None
+        Level1
+        Level2
+        Level3
+        Exit
+        Resume
+        Retire
+    }
+
+    abstract class MenuPanel {
+        - buttons: vector<MenuButton>
+        - hovered: MenuOption
+        - titleFont: ALLEGRO_FONT*
+        + loadFonts(fontPath): void
+        + setMousePosition(x, y): void
+        + optionAt(x, y): MenuOption
+        + update(seconds): void
+        + draw(): void
+        # addButton(option, label, detail, face, side, left, top, right, bottom): void
+        # {abstract} drawHeader(): void
+        # drawFooter(): void
+    }
+
+    class MainMenu {
+        # drawHeader(): void
+        # drawFooter(): void
+    }
+
+    class PauseMenu {
+        - levelName: string
+        + setLevelName(name): void
+        # drawHeader(): void
+        # drawFooter(): void
+    }
+
+    class PauseButton {
+        - hovered: bool
+        + setMousePosition(x, y): void
+        + contains(x, y): bool
+        + update(seconds): void
+        + draw(): void
+    }
+
+    class BoardRenderer {
+        - vehicleAnimation: Animation
+        + update(seconds): void
+        + draw(): void
+    }
+}
+
+ILevelLoader <|.. TextLevelLoader
+Controller --> ILevelLoader : carga niveles (DIP)
+Controller ..> LevelCatalog : dificultad -> archivo
+LevelCatalog ..> Difficulty
+TextLevelLoader ..> Traffic : agrega buses
+TextLevelLoader ..> Queue : agrega pasajeros
+
+IRenderable <|.. Scenery
+IRenderable <|.. PassengerRenderer
+IRenderable <|.. BoardRenderer
+IRenderable <|.. MenuPanel
+IRenderable <|.. PauseButton
+MenuPanel <|-- MainMenu
+MenuPanel <|-- PauseMenu
+MenuPanel ..> MenuOption
+MainMenu ..> LevelCatalog : nombres de nivel
+SceneryWindow ..> MainMenu : pantalla de menú
+SceneryWindow ..> PauseMenu : pantalla de pausa
+SceneryWindow ..> PauseButton : abre la pausa
+SceneryWindow ..> AllegroWindow : abre la ventana
+SceneryWindow --> Controller : pide cargar nivel
+SceneryWindow ..> IRenderable : dibuja la lista
+PassengerRenderer *-- Animation
+BoardRenderer *-- Animation
+PassengerRenderer --> SpriteBank
+BoardRenderer --> SpriteBank
+PassengerRenderer --> Queue : lee (solo lectura)
+PassengerRenderer --> WaitingRoom : lee (solo lectura)
+BoardRenderer --> Traffic : lee (solo lectura)
+
+Traffic "1" *-- "0..*" Bus : buses
+Parking "1" o-- "0..*" Bus : places
+Queue "1" *-- "0..*" Passager : queue
+WaitingRoom "1" *-- "0..*" Passager : seats
+WaitingRoom --> Parking : busca buses por color
+WaitingRoom --> Queue : consume grupos
+Controller --> Traffic : inicializa y opera
+Controller --> Parking : verifica cupo y recibe buses
+Controller --> Queue : carga pasajeros del nivel
+Controller --> WaitingRoom : conserva referencia
+Console --> Traffic : consulta grid y direcciones
+
+SceneryWindow --> Console : la consola juega, la ventana refleja
+SceneryWindow ..> ParkingRenderer
+
+note bottom of Traffic
+    grid[y][x]: 0 significa celda libre;
+    los buses se reconstruyen desde la seccion BUSES.
+end note
+
 @enduml
