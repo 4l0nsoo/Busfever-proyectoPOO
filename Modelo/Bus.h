@@ -49,8 +49,7 @@ private:
     int seatsLeft;
 
 public:
-    Bus(int id, int capacity, int color,
-    const std::string& direction, int x, int y);
+    Bus(int id, int Length, int capacity, int color, const std::string& direction, int x, int y);
 
     int board(int n);
     bool isFull() const;
