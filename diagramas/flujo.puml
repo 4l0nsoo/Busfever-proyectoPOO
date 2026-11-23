@@ -1,31 +1,39 @@
 @startuml flujo
 
 start
-:Console imprime el tablero en ASCII;
 
-repeat
-    :Usuario escribe un comando;
-    :Controller interpreta el comando;
-
-    if (¿comando válido?) then (sí)
-        if (¿el bus existe?) then (sí)
-        else (no)
-            :Console muestra "bus no encontrado";
-        endif
-    else (no)
-        :Console muestra error de comprensión;
-    endif
-repeat while (¿entrada inválida?) is (sí) not (no)
-
-if (¿canExit?) then (sí)
-    :Traffic quita el bus del grid;
-    :Parking recibe el bus;
-    :WaitingRoom llena buses por color;
+if (¿Se pudo cargar el nivel?) then (sí)
+    :Controller carga TABLERO;
+    :Controller agrega pasajeros a Queue;
+    :Controller agrega buses a Traffic;
 else (no)
-    :Console muestra "bus bloqueado";
+    :Console muestra el error de carga;
+    stop
 endif
 
-:Console imprime el tablero actualizado;
+while (¿quedan buses en Traffic?) is (sí)
+    :Console imprime matriz con IDs y flechas de dirección;
+    :Usuario ingresa ID o "salir";
+
+    if (¿es "salir" o entrada vacía?) then (sí)
+        stop
+    else (no)
+        :Controller convierte la entrada a ID;
+        if (¿ID válido y bus existente?) then (sí)
+            if (¿bus puede salir y Parking tiene espacio?) then (sí)
+                :Traffic quita el bus y libera sus celdas;
+                :Parking recibe el bus;
+                :Console confirma la salida;
+            else (no)
+                :Console muestra error;
+            endif
+        else (no)
+            :Console muestra error;
+        endif
+    endif
+endwhile (no)
+
+:Console muestra victoria;
 stop
 
 @enduml

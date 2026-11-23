@@ -12,11 +12,21 @@ Bus* Parking::findBus(int color) {
     return nullptr;
 }
 
-bool Parking::isFull(){
-    if(places.size() >= 4){
-        return true;
-    };
+bool Parking::isFull() {
+    return places.size() >= 4;
 }
 void Parking::receiveBus(Bus &bus){
     places.push_back(bus);
+}
+
+const std::vector<Bus>& Parking::getBuses() const {
+    // Retorna los buses estacionados por referencia constante: se pueden leer pero no cambiar.
+    // Ej: la ventana de Allegro los dibuja en los puestos de parqueo.
+    return places;
+}
+
+void Parking::clear() {
+    // Saca todos los buses del parqueadero.
+    // Ej: places pasa de [bus 2, bus 7] a [].
+    places.clear();
 }
