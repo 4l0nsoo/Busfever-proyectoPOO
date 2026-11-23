@@ -64,5 +64,10 @@ public:
     int getX() const;
     int getY() const;
     int getSeatsLeft() const; //Disponibilidad de asientos
+
+    //settters de la clase
+    void setx(int x);
+    void sety(int y);
+    void setDirection(const std::string& direction);
 };
 
