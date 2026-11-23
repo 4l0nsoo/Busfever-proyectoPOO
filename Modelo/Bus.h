@@ -41,7 +41,6 @@
 class Bus {
 private:
     int id;//identificador del bus
-    int Length;//longitud del bus
     int capacity;//cantidad de personas
     int color;
     std::string direction;//direccion en la que avanza

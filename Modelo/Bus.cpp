@@ -1,7 +1,7 @@
 #include "Bus.h"
 
-Bus::Bus(int id, int Length, int capacity, int color, const std::string& direction, int x, int y)
-:id(id), Length(Length), capacity(capacity), color(color), direction(direction), x(x), y(y), seatsLeft(capacity) {}
+Bus::Bus(int id, int capacity, int color, const std::string& direction, int x, int y)
+:id(id), capacity(capacity), color(color), direction(direction), x(x), y(y), seatsLeft(capacity) {}
 
 void Bus::setx(int x){
     this-> x = x;
