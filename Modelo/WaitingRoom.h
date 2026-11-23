@@ -35,4 +35,6 @@ public:
     // Permite consultar los grupos de la fila rotatoria sin modificarlos (para dibujarlos).
     // Ej: la Vista dibuja cada persona de cada grupo alrededor de la glorieta.
     const std::vector<Passager>& getSeats() const;
+    
+    bool bothRowsEmpty() const; // true si no queda nadie en la fila rotatoria ni en la estátic
 };

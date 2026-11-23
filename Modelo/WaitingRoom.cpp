@@ -77,3 +77,7 @@ const std::vector<Passager>& WaitingRoom::getSeats() const {
     // Ej: la Vista los recorre para dibujarlos en la glorieta.
     return seats;
 }
+
+bool WaitingRoom::bothRowsEmpty() const {
+    return seats.empty() && queue.emptyFila();
+}
