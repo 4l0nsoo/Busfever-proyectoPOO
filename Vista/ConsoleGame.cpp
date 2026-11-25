@@ -53,7 +53,8 @@ void ConsoleGame::run() {
 
     // Turnos del juego: misma lógica que tenía el main, mientras queden buses en el tablero.
     // Ej: con 34 buses se repite hasta sacarlos todos o escribir "salir".
-    while (traffic.getBusCount() > 0) {
+    //while (traffic.getBusCount() > 0)
+    while (!controller.win() && !controller.lose()) {
         // Imprime el tablero y pide el ID de un bus.
         // Ej: el usuario escribe "2".
         console.printBoard(traffic);
@@ -77,7 +78,10 @@ void ConsoleGame::run() {
 
     // Si ya no quedan buses en el tablero, se ganó.
     // Ej: "Ganaste.".
-    if (traffic.getBusCount() == 0) {
+    //if (traffic.getBusCount() == 0) 
+    if (controller.win()) {
         console.printWin();
+    }else if(controller.lose()){
+        console.printLoss();
     }
 }

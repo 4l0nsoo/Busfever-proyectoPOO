@@ -59,4 +59,11 @@ public:
     // Retorna la dificultad del último nivel cargado.
     // Ej: sirve para mostrar "Nivel 2 - Normal" en la ventana.
     Difficulty getCurrentDifficulty() const;
+
+    // Retorna true cuando ya no queda ningún pasajero esperando (victoria).
+    bool win() const;
+
+    //parking lleno y ningún pasajero esperando coincide con el color de un bus estacionado
+    bool lose() const;
 };
+
