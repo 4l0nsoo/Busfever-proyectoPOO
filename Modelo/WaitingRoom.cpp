@@ -1,9 +1,36 @@
 #include "WaitingRoom.h"
 
 void WaitingRoom::freePassager(Parking& slots) {
-    for(Passager& p: seats){
-        Bus* bus = slots.findBus(p.getColor());
+    while(true){
+        //Busca un grupo de la fila rotatoria con un bus de su color y asientos libres
+        Bus* target = nullptr;
+        for(const Passager& p: seats){
+            target = slots.findBus(p.getColor());
+            if (target != nullptr){
+                break;
+            }
+        }
 
+        //Si nadie aborda termina el ciclo
+        if (target == nullptr){
+            break;
+        }
+
+        //Suben al bus todos los del color que quepan
+        fillBus(*target);
+
+        //Se despachan buses llenos y se liberan sus lufares
+        const std::vector<Bus>& parked = slots.getBuses();
+        size_t b = 0;
+        while ( b < parked.size()){
+            if (parked[b].isFull()){
+                slots.dispatch(b); //al borrar los demas se corren
+            } else {
+                b++;
+            }
+        }
+        //La fila estatica rellena la rotatoria
+        fillFromQueue();
     }
 }
 
@@ -80,4 +107,13 @@ const std::vector<Passager>& WaitingRoom::getSeats() const {
 
 bool WaitingRoom::bothRowsEmpty() const {
     return seats.empty() && queue.emptyFila(); //Se requiere de el desarrollo de emptyFila para el cumplimiento de la verificacion
+}
+
+bool WaitingRoom::someoneCanBoard() const {
+    for (const Passager& p : seats){
+        if (parking.findBus(p.getColor()) !=nullptr){
+            return true;
+        }
+    }
+    return false;
 }
