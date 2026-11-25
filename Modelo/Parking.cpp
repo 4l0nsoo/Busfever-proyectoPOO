@@ -3,6 +3,15 @@
 void Parking::dispatch(int b) {
     places.erase(places.begin() + b);
 }
+
+void Parking::dispatchFullBuses() {
+    for (int i = static_cast<int>(places.size()) - 1; i >= 0; --i) {
+        if (places[i].isFull()) {
+            dispatch(i);
+        }
+    }
+}
+
 Bus* Parking::findBus(int color) {
     for (Bus& b : places) {                       // & para no copiar el bus
         if (b.getColor() == color && !b.isFull()) {

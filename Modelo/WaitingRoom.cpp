@@ -1,37 +1,31 @@
 #include "WaitingRoom.h"
 
 void WaitingRoom::freePassager(Parking& slots) {
-    while(true){
-        //Busca un grupo de la fila rotatoria con un bus de su color y asientos libres
-        Bus* target = nullptr;
-        for(const Passager& p: seats){
-            target = slots.findBus(p.getColor());
-            if (target != nullptr){
-                break;
+    size_t i = 0;
+    while (i < seats.size()) {
+        int color = seats[i].getColor();
+        Bus* bus = slots.findBus(color);
+
+        if (bus != nullptr) {
+            // Llena este bus con todos los pasajeros compatibles posibles de la sala
+            fillBus(*bus);
+
+            // Si el bus se llenó por completo, se despacha del parqueadero
+            if (bus->isFull()) {
+                slots.dispatchFullBuses();
             }
-        }
 
-        //Si nadie aborda termina el ciclo
-        if (target == nullptr){
-            break;
+            // Como fillBus() pudo haber eliminado o dividido el elemento en seats[i],
+            // reiniciamos el índice en 0 para evaluar desde el inicio sin saltar grupos
+            i = 0;
+        } else {
+            // No hay ningún bus disponible de este color en el parqueadero, avanzamos al siguiente grupo
+            i++;
         }
-
-        //Suben al bus todos los del color que quepan
-        fillBus(*target);
-
-        //Se despachan buses llenos y se liberan sus lufares
-        const std::vector<Bus>& parked = slots.getBuses();
-        size_t b = 0;
-        while ( b < parked.size()){
-            if (parked[b].isFull()){
-                slots.dispatch(b); //al borrar los demas se corren
-            } else {
-                b++;
-            }
-        }
-        //La fila estatica rellena la rotatoria
-        fillFromQueue();
     }
+
+    // Al liberarse espacio en la sala de espera, ingresan nuevos pasajeros desde la fila estática
+    fillFromQueue();
 }
 
 void WaitingRoom::fillBus(Bus& bus) {

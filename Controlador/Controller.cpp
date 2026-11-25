@@ -71,6 +71,7 @@ bool Controller::processCommand(const std::string& command) {
     }
     parking.receiveBus(busLeaving);
     //llama al abordaje despues de estacionar 
+    // Ejecutar embarque de pasajeros hacia los buses estacionados
     waitingRoom.freePassager(parking);
     return true;
 }
