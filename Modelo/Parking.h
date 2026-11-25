@@ -11,6 +11,7 @@ public:
     void receiveBus(Bus &bus);//recibe lso buses que salen de traffic
     Bus* findBus(int color);
     void dispatch(int b);//despacha los buses llenos
+    void dispatchFullBuses(); // NUEVO: despacha todos los buses que ya se llenaron
     bool isFull();
 
     // Permite consultar los buses estacionados sin modificarlos (para mostrarlos en la ventana).

@@ -70,6 +70,8 @@ bool Controller::processCommand(const std::string& command) {
         return false;
     }
     parking.receiveBus(busLeaving);
+    // Ejecutar embarque de pasajeros hacia los buses estacionados
+    waitingRoom.freePassager(parking);
     return true;
 }
 
