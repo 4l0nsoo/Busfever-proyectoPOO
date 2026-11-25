@@ -110,6 +110,10 @@ bool SceneryWindow::run() {
     // Ej: true después de sacar el último bus.
     bool levelWon = false;
 
+    // Indica si el nivel se perdió (parking lleno y nadie puede abordar).
+    // Ej: se usa junto con controller.lose() para mostrar "Perdiste".
+    bool levelLost = false;
+
     // Indica si la ventana sigue abierta y si toca volver a dibujar.
     // Ej: running pasa a false al cerrar la ventana o elegir "Salir".
     bool running = true;
@@ -307,7 +311,7 @@ bool SceneryWindow::run() {
 
                     // Si ya no quedan buses en el tablero, se ganó (misma condición que el juego de consola).
                     // Ej: después de sacar el último bus -> "Ganaste." en la consola y en el título de la ventana.
-                    if (traffic.win()) {
+                    if (controller.win()) {
                         levelWon = true;
                         console.printWin();
                         console.printMessage("Escribe 'salir' para volver al menu.");
