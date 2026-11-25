@@ -1,10 +1,31 @@
 #include "WaitingRoom.h"
 
 void WaitingRoom::freePassager(Parking& slots) {
-    for(Passager& p: seats){
-        Bus* bus = slots.findBus(p.getColor());
+    size_t i = 0;
+    while (i < seats.size()) {
+        int color = seats[i].getColor();
+        Bus* bus = slots.findBus(color);
 
+        if (bus != nullptr) {
+            // Llena este bus con todos los pasajeros compatibles posibles de la sala
+            fillBus(*bus);
+
+            // Si el bus se llenó por completo, se despacha del parqueadero
+            if (bus->isFull()) {
+                slots.dispatchFullBuses();
+            }
+
+            // Como fillBus() pudo haber eliminado o dividido el elemento en seats[i],
+            // reiniciamos el índice en 0 para evaluar desde el inicio sin saltar grupos
+            i = 0;
+        } else {
+            // No hay ningún bus disponible de este color en el parqueadero, avanzamos al siguiente grupo
+            i++;
+        }
     }
+
+    // Al liberarse espacio en la sala de espera, ingresan nuevos pasajeros desde la fila estática
+    fillFromQueue();
 }
 
 void WaitingRoom::fillBus(Bus& bus) {
