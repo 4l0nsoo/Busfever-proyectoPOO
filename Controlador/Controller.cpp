@@ -70,6 +70,8 @@ bool Controller::processCommand(const std::string& command) {
         return false;
     }
     parking.receiveBus(busLeaving);
+    //llama al abordaje despues de estacionar 
+    waitingRoom.freePassager(parking);
     return true;
 }
 
@@ -78,26 +80,6 @@ bool Controller::win() const {
 }
 
 bool Controller::lose() const {
-    if (win()){
-        return false;
-    }
-    if (!parking.isFull()){//Todavia hay cupo en el parking 
-        return false;
-    }
-
-    const std::vector<Bus>& parked = parking.getBuses();
-    const std::vector<Passager>& seats = waitingRoom.getSeats();
-    
-    for (const Bus& bus : parked){
-        if (bus.isFull()){
-            return false;
-        }
-        for (const Passager& p : seats){
-            if (p.getColor() == bus.getColor()){
-                return false; //Puede llenarse todavia
-            }
-        }
-    }
-    return true;
+    return !win() && parking.isFull() && !waitingRoom.someoneCanBoard();
 
 }

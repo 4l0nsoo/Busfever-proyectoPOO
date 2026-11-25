@@ -294,7 +294,7 @@ bool SceneryWindow::run() {
                 // Si ya se ganó, no quedan buses que mover.
                 // Ej: se le recuerda cómo volver al menú.
                 else if (levelWon) {
-                    console.printMessage("Ya no quedan buses. Escribe 'salir' para volver al menu.");
+                    console.printMessage("Ganaste. Escribe 'salir' para volver al menu.");
                 }
                 // Lógica del juego de consola: el Controller procesa el ID y la consola muestra el resultado.
                 // Ej: "2" -> "Bus enviado al estacionamiento." y la ventana mueve el bus 2 al parqueadero.
@@ -307,14 +307,21 @@ bool SceneryWindow::run() {
 
                     // Si ya no quedan buses en el tablero, se ganó (misma condición que el juego de consola).
                     // Ej: después de sacar el último bus -> "Ganaste." en la consola y en el título de la ventana.
-                    if (traffic.getBusCount() == 0) {
+                    if (traffic.win()) {
                         levelWon = true;
                         console.printWin();
                         console.printMessage("Escribe 'salir' para volver al menu.");
                         window.setTitle(title + " - ¡Ganaste!");
-                    } else {
-                        // Si no, se muestra el siguiente turno (tablero y pregunta), como en el ciclo de consola.
-                        // Ej: el tablero ya sin el bus 2.
+                    //Si el parking esta lleno y los buses no son del color de los pasajeros esperando perdiste
+                    } else if (controller.lose()){
+                        levelLost = true;
+                        console.printLoss();
+                        console.printMessage("Escribe 'salir' para volver al menu.");
+                        window.setTitle(title + " - Perdiste");
+                    }
+                    // Si no, se muestra el siguiente turno (tablero y pregunta), como en el ciclo de consola.
+                    // Ej: el tablero ya sin el bus 2.
+                    else{
                         showTurnInConsole();
                     }
                 }
