@@ -41,7 +41,6 @@
 class Bus {
 private:
     int id;//identificador del bus
-    int Length;//longitud del bus
     int capacity;//cantidad de personas
     int color;
     std::string direction;//direccion en la que avanza
@@ -50,8 +49,7 @@ private:
     int seatsLeft;
 
 public:
-    Bus(int id, int capacity, int color,
-    const std::string& direction, int x, int y);
+    Bus(int id, int capacity, int color, const std::string& direction, int x, int y);
 
     int board(int n);
     bool isFull() const;
@@ -65,5 +63,10 @@ public:
     int getX() const;
     int getY() const;
     int getSeatsLeft() const; //Disponibilidad de asientos
+
+    //settters de la clase
+    void setx(int x);
+    void sety(int y);
+    void setDirection(const std::string& direction);
 };
 

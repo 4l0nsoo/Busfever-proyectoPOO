@@ -1,0 +1,17 @@
+# Directorio de compilación
+build/
+
+# Archivos objeto
+*.o
+*.obj
+
+# Ejecutables
+*.exe
+*.out
+
+# Archivos de depuración
+*.pdb
+*.ilk
+
+# Configuraciones locales del editor
+.vscode/
