@@ -81,6 +81,6 @@ bool Controller::win() const {
 }
 
 bool Controller::lose() const {
-    return !win() && parking.isFull() && !waitingRoom.someoneCanBoard();
+    return !win() && !waitingRoom.someoneCanBoard();
 
 }

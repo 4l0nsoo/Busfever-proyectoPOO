@@ -4,10 +4,11 @@
         {
             "label": "C/C++: g++.exe build active file",
             "type": "cppbuild",
-            "command": "C:\\mingw64\\bin\\g++.exe",
+            "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",
             "args": [
                 "-std=c++17",
                 "-g",
+                "-I${workspaceFolder}",
                 "Vista/main.cpp",
                 "Vista/Console.cpp",
                 "Vista/ConsoleGame.cpp",
@@ -32,9 +33,7 @@
                 "Modelo/Queue.cpp",
                 "Modelo/Traffic.cpp",
                 "Modelo/WaitingRoom.cpp",
-                "-I${workspaceFolder}",
-                "-IC:\\allegro5\\include",
-                "-LC:\\allegro5\\lib",
+                "-LC:\\msys64\\ucrt64\\lib",
                 "-lallegro",
                 "-lallegro_image",
                 "-lallegro_primitives",

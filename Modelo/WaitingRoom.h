@@ -37,4 +37,7 @@ public:
     const std::vector<Passager>& getSeats() const;
     
     bool bothRowsEmpty() const; // true si no queda nadie en la fila rotatoria ni en la estátic
+
+    // Retorna true si algún grupo de la rotatoria tiene un bus de su color con asientos libres.
+    bool someoneCanBoard() const;
 };
