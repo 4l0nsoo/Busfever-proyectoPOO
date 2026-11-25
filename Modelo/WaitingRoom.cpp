@@ -115,6 +115,5 @@ bool WaitingRoom::someoneCanBoard() const {
             return true;
         }
     }
-    return false;
     return seats.empty() && queue.emptyFila();
 }
