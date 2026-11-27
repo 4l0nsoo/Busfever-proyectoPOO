@@ -7,6 +7,7 @@ private:
     std::vector<Bus> places;
 
 public:
+    static const int PARKING_CAPACITY = 4; // Cantidad de areas de parkeos definidos como constantes
     Parking() = default;
     void receiveBus(Bus &bus);//recibe lso buses que salen de traffic
     Bus* findBus(int color);
