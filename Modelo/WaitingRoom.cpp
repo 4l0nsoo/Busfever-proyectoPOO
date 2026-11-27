@@ -109,5 +109,6 @@ bool WaitingRoom::someoneCanBoard() const {
             return true;
         }
     }
-    return seats.empty() && queue.emptyFila();
+    return false; //Nadie puede abordar si no hay bus de su color 
+    //return seats.empty() && queue.emptyFila();
 }
