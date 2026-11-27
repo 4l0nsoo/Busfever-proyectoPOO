@@ -85,9 +85,9 @@ bool Traffic::canExit(const Bus& bus) const {
     int x = bus.getX();
     int y = bus.getY();
     if (dx > 0) x += length;
-    if (dx < 0) x -= 1;
-    if (dy > 0) y += length;
-    if (dy < 0) y -= 1;
+    if (dx < 0) x -= length;
+    if (dy > 0) y += length;    //Direcciones: arriba, abajo, izquierda, derecha
+    if (dy < 0) y -= length;    //Validacion de camino corregida
 
     while (inBounds(x, y)) {
         if (grid[y][x] != 0) return false;
