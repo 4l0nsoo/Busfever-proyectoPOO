@@ -15,6 +15,9 @@ void WaitingRoom::freePassager(Parking& slots) {
                 slots.dispatchFullBuses();
             }
 
+            // Entran nuevos pasajeros desde la fila estática a los lugares liberados
+            fillFromQueue();
+
             // Como fillBus() pudo haber eliminado o dividido el elemento en seats[i],
             // reiniciamos el índice en 0 para evaluar desde el inicio sin saltar grupos
             i = 0;
