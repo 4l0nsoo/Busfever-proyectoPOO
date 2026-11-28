@@ -92,7 +92,7 @@ void testEmbarqueCompletoYReposicionDesdeQueue() {
     Queue queue;
     WaitingRoom room(parking, queue);
 
-    // Llenamos la sala al tope (120 rojos) y dejamos 20 rojos esperando en Queue
+    // Se llena la sala al tope (120 rojos) y  20 rojos esperando en Queue
     queue.add(Passager(1, 120));
     queue.add(Passager(1, 20));
     room.fillFromQueue();
@@ -104,8 +104,7 @@ void testEmbarqueCompletoYReposicionDesdeQueue() {
     Bus busRojo(2, 40, 1, "derecha", 0, 0);
     parking.receiveBus(busRojo);
 
-    // Al ejecutar freePassager: suben 40 rojos al bus (se llena y se va),
-    // y automáticamente entran los 20 rojos que esperaban en Queue
+    // Al ejecutar freePassager: suben 40 rojos al bus (se llena y se va), y automáticamente entran los 20 rojos que esperaban en Queue
     room.freePassager(parking);
 
     assert(parking.getBuses().empty() == true); // Bus despachado
