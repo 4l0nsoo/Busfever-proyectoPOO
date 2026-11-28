@@ -52,7 +52,7 @@ private:
     std::vector<std::vector<int>> grid;
  
     // Los buses del nivel con todos sus datos (id, color, capacidad, dirección, posición).
-    std::vector<Bus> buses;
+    std::vector<Vehicle*> buses;
  
     // Traduce las direcciones a pasos dentro de la cuadrícula.
     static bool directionStep(const std::string& direction, int& dx, int& dy);
@@ -70,7 +70,7 @@ public:
     void initializeBoard(int width, int height);
 
     // Agrega el bus al vector y marca sus celdas; retorna false si no puede ubicarse.
-    bool addBus(const Bus& bus);
+    bool addBus(const Vehicle& bus);
  
     // Quita el bus del nivel y libera sus celdas.
     bool removeBus(int id);
@@ -83,10 +83,10 @@ public:
     bool canExit(const Bus& bus) const;
  
     // Busca el bus por su identificación (id).
-    Bus* getBus(int id);
+    Vehicle* getBus(int id);
 
     // Permite consultar los buses para mostrar sus datos en consola.
-    const std::vector<Bus>& getBuses() const;
+    const std::vector<Vehicle*>& getBuses() const;
 
     // Permite que la consola lea la cuadrícula.
     const std::vector<std::vector<int>>& getGrid() const;
